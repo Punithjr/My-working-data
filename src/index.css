@@ -1,0 +1,175 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-primary: #1e3a8a;
+    --color-primary-hover: #172554;
+  }
+
+  body {
+    font-family: 'Noto Sans Kannada', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+}
+
+.font-kannada {
+  font-family: 'Noto Sans Kannada', 'Inter', system-ui, sans-serif;
+}
+
+.font-kannada-heading {
+  font-family: 'Noto Sans Kannada', 'Inter', system-ui, sans-serif;
+  font-weight: 700;
+}
+
+/* Custom animations & utility classes */
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Scanning corner handles */
+.corner-handle {
+  width: 28px;
+  height: 28px;
+  border-radius: 9999px;
+  background-color: #3b82f6;
+  border: 3px solid #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  position: absolute;
+  transform: translate(-50%, -50%);
+  cursor: grab;
+  touch-action: none;
+  z-index: 20;
+  transition: transform 0.1s ease;
+}
+
+.corner-handle:active {
+  transform: translate(-50%, -50%) scale(1.25);
+  cursor: grabbing;
+  background-color: #1d4ed8;
+}
+
+/* Dark mode smooth transition */
+html.dark {
+  color-scheme: dark;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.4);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.7);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(75, 85, 99, 0.6);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(107, 114, 128, 0.8);
+}
+
+/* Priority Overdue Flashing / Pulsing Subtle Red Border */
+@keyframes overduePulseBorder {
+  0%, 100% {
+    border-color: rgba(239, 68, 68, 0.95);
+    box-shadow: 0 0 0 1.5px rgba(239, 68, 68, 0.5), 0 0 14px rgba(239, 68, 68, 0.25);
+  }
+  50% {
+    border-color: rgba(248, 113, 113, 0.4);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15), 0 0 4px rgba(239, 68, 68, 0.1);
+  }
+}
+
+.animate-overdue-pulse {
+  animation: overduePulseBorder 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* ==========================================================
+   OFFICIAL A4 GOVERNMENT PRINT STYLESHEET
+   Dedicated print formatting for LetterViewerModal, StatutoryBooksView,
+   official letters, memo orders, and prapathra-28 stationery.
+   ========================================================== */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 15mm 15mm 15mm 15mm;
+  }
+
+  /* Hide all UI Chrome: navigation, header, footer, modals overlay, action bars, buttons */
+  header,
+  nav,
+  footer,
+  button,
+  .no-print,
+  #top-directorate-banner,
+  .backdrop-blur-sm,
+  .backdrop-blur-xs,
+  .sticky {
+    display: none !important;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 12pt !important;
+    line-height: 1.5 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Make modal printable content take up full page cleanly */
+  .printable-document,
+  .print-area,
+  #letter-viewer-print-content,
+  #statutory-books-print-content {
+    display: block !important;
+    visibility: visible !important;
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: #ffffff !important;
+  }
+
+  /* Ensure Kannada text and official stationery fonts render crisply */
+  .font-kannada {
+    font-family: 'Noto Sans Kannada', 'Tunga', 'Kedage', sans-serif !important;
+  }
+
+  /* Prevent page breaks inside paragraphs, tables, signatures */
+  p, table, tr, .signature-block, .official-seal-block {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* High contrast borders for tables */
+  table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+  }
+
+  th, td {
+    border: 1px solid #111827 !important;
+    color: #000000 !important;
+  }
+}
+

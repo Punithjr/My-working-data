@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6" />
+      <stop offset="50%" stop-color="#2563eb" />
+      <stop offset="100%" stop-color="#1d4ed8" />
+    </linearGradient>
+    <linearGradient id="fold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#60a5fa" />
+      <stop offset="100%" stop-color="#93c5fd" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#1e3a8a" flood-opacity="0.35" />
+    </filter>
+  </defs>
+
+  <!-- Background Base with Rounded Corners -->
+  <rect width="512" height="512" rx="112" fill="url(#grad)" />
+
+  <!-- Document Sheet -->
+  <g filter="url(#shadow)">
+    <!-- Document Body -->
+    <path d="M 144 104 L 288 104 L 368 184 L 368 408 C 368 416.8 360.8 424 352 424 L 144 424 C 135.2 424 128 416.8 128 408 L 128 120 C 128 111.2 135.2 104 144 104 Z" fill="#ffffff" />
+    <!-- Folded Corner -->
+    <path d="M 288 104 L 368 184 L 304 184 C 295.2 184 288 176.8 288 168 L 288 104 Z" fill="url(#fold)" />
+  </g>
+
+  <!-- Lightning Bolt / Compression Arrows / Privacy Shield icon -->
+  <!-- Privacy Lock / Fast Bolt Emblem -->
+  <g transform="translate(196, 220)">
+    <!-- Shield / Bolt Badge -->
+    <rect x="-16" y="-8" width="152" height="152" rx="32" fill="#2563eb" />
+    <!-- Down Arrow Compression Badge -->
+    <path d="M 60 16 L 60 84 M 32 58 L 60 86 L 88 58" stroke="#ffffff" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+    <path d="M 24 108 L 96 108" stroke="#60a5fa" stroke-width="12" stroke-linecap="round" />
+  </g>
+
+  <!-- Client-side / Offline Badge Dot -->
+  <circle cx="396" cy="116" r="32" fill="#10b981" stroke="#ffffff" stroke-width="10" />
+  <path d="M 386 116 L 394 124 L 408 108" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+</svg>

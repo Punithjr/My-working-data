@@ -1,0 +1,149 @@
+{
+  "entities": {
+    "docketFile": {
+      "title": "Docket File",
+      "description": "Master administrative or service docket file",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "fileNumber": { "type": "string" },
+        "subject": { "type": "string" },
+        "department": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "fileNumber", "subject"]
+    },
+    "employee": {
+      "title": "Employee",
+      "description": "Education department employee roster record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "kgidNumber": { "type": "string" },
+        "fullName": { "type": "string" },
+        "designation": { "type": "string" },
+        "currentBasicPay": { "type": "number" }
+      },
+      "required": ["id", "kgidNumber", "fullName"]
+    },
+    "memorandumOrder": {
+      "title": "Memorandum Order",
+      "description": "Official memorandum order record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "orderNumber": { "type": "string" },
+        "employeeName": { "type": "string" },
+        "kgidNumber": { "type": "string" },
+        "orderType": { "type": "string" },
+        "orderDate": { "type": "string" }
+      },
+      "required": ["id", "orderNumber", "employeeName", "orderType"]
+    },
+    "generatedLetter": {
+      "title": "Generated Letter",
+      "description": "Official correspondence letter record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "letterNumber": { "type": "string" },
+        "letterType": { "type": "string" },
+        "subject": { "type": "string" },
+        "date": { "type": "string" }
+      },
+      "required": ["id", "letterNumber", "letterType"]
+    },
+    "auditLog": {
+      "title": "Audit Log",
+      "description": "System event audit trail",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "action": { "type": "string" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["id", "action", "timestamp"]
+    },
+    "userProfile": {
+      "title": "User Profile",
+      "description": "Authorized department user profile (strictly max 5 registered users)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "username": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string" },
+        "designation": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "displayName", "role"]
+    },
+    "rtiCase": {
+      "title": "RTI Case",
+      "description": "Right to Information application and correspondence record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "applicationNumber": { "type": "string" },
+        "applicantName": { "type": "string" },
+        "subject": { "type": "string" },
+        "status": { "type": "string" },
+        "receivedDate": { "type": "string" }
+      },
+      "required": ["id", "applicationNumber", "applicantName", "subject"]
+    },
+    "pensionCase": {
+      "title": "Pension Case",
+      "description": "Pension settlement and retirement benefit case record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "caseNumber": { "type": "string" },
+        "employeeName": { "type": "string" },
+        "kgidNumber": { "type": "string" },
+        "dor": { "type": "string" }
+      },
+      "required": ["id", "caseNumber", "employeeName"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "userProfile",
+      "description": "Collection of authorized users (max 5 registered users)"
+    },
+    "/rtiCases/{caseId}": {
+      "schema": "rtiCase",
+      "description": "Collection of Right to Information applications and correspondence"
+    },
+    "/pensionCases/{caseId}": {
+      "schema": "pensionCase",
+      "description": "Collection of pension calculation and retirement cases"
+    },
+    "/docketFiles/{fileId}": {
+      "schema": "docketFile",
+      "description": "Collection of master docket files"
+    },
+    "/employees/{employeeId}": {
+      "schema": "employee",
+      "description": "Collection of employee service roster records"
+    },
+    "/memorandums/{orderId}": {
+      "schema": "memorandumOrder",
+      "description": "Collection of official memorandum orders"
+    },
+    "/letters/{letterId}": {
+      "schema": "generatedLetter",
+      "description": "Collection of dispatched and draft letters"
+    },
+    "/auditLogs/{logId}": {
+      "schema": "auditLog",
+      "description": "Collection of system action audit logs"
+    },
+    "/test/{testId}": {
+      "schema": "auditLog",
+      "description": "Connection test document"
+    }
+  }
+}

@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+    <title>ಕಛೇರಿ ಪತ್ರ ಮತ್ತು ಇತರೆ ಕಡತಗಳ ನಿರ್ವಹಣೆ – Education Department Letters & Files</title>
+    <meta name="description" content="Education Department Letters & Files Management System with official correspondence tracking, inward/outward dak register, circular and order generator, docket file movement, and administrative reports." />
+    <meta name="keywords" content="Karnataka Education Department, BEO office, letter drafting, dak register, RTI files, docket management, circulars" />
+    
+    <!-- PWA & Mobile Web App Meta -->
+    <meta name="theme-color" content="#2563eb" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="ಕಛೇರಿ ಪತ್ರ ವ್ಯವಸ್ಥೆ" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <!-- OpenGraph Social Cards -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="ಕಛೇರಿ ಪತ್ರ ವ್ಯವಸ್ಥೆ" />
+    <meta property="og:title" content="ಕಛೇರಿ ಪತ್ರ ಮತ್ತು ಇತರೆ ಕಡತಗಳ ನಿರ್ವಹಣೆ – Education Department" />
+    <meta property="og:description" content="Education Department Letters & Files Management System with official correspondence tracking, inward/outward dak register, circular and order generator, docket file movement, and administrative reports." />
+    <meta property="og:image" content="/icon.svg" />
+
+    <!-- Twitter / X Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="ಕಛೇರಿ ಪತ್ರ ಮತ್ತು ಇತರೆ ಕಡತಗಳ ನಿರ್ವಹಣೆ – Education Department" />
+    <meta name="twitter:description" content="Education Department Letters & Files Management System with official correspondence tracking, inward/outward dak register, circular and order generator, docket file movement, and administrative reports." />
+    <meta property="twitter:image" content="/icon.svg" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+Kannada:wght@400;500;600;700;800;900&family=Noto+Serif+Kannada:wght@500;700&display=swap" rel="stylesheet">
+
+    <!-- Schema.org WebApplication JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "FileTools",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "All",
+      "description": "Free, 100% private in-browser file tools: Compress JPG/PNG to target size (20KB, 50KB, 100KB), convert JPEG to JPG, compress PDF, and scan documents. 100% client-side with offline PWA support.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "featureList": [
+        "Image Compressor with 20KB/50KB/100KB and custom target KB binary search",
+        "JPEG to JPG batch converter",
+        "PDF Compressor with Low/Medium/High and target size optimization",
+        "Document Scanner with camera capture, auto edge detection, perspective correction, filters & PDF export",
+        "100% client-side privacy - no file uploads",
+        "Offline PWA capability"
+      ]
+    }
+    </script>
+    <script>
+      // Gracefully handle benign HMR/WebSocket disconnect events in sandbox/iframe environment
+      (function() {
+        if (typeof window === 'undefined') return;
+
+        // Prevent Vite HMR client from raising unhandled WebSocket closed errors
+        var NativeWebSocket = window.WebSocket;
+        if (NativeWebSocket) {
+          function SafeWebSocket(url, protocols) {
+            var isViteHmr = protocols === 'vite-hmr' || 
+                            (typeof url === 'string' && (url.indexOf('vite') !== -1 || url.indexOf('run.app') !== -1 || url.indexOf(':3000') !== -1));
+            
+            if (isViteHmr) {
+              var listeners = {};
+              var ws = {
+                url: url,
+                readyState: 1, // OPEN
+                protocol: 'vite-hmr',
+                extensions: '',
+                binaryType: 'blob',
+                bufferedAmount: 0,
+                send: function() {},
+                close: function() {
+                  ws.readyState = 3; // CLOSED
+                  if (typeof ws.onclose === 'function') {
+                    try { ws.onclose({ wasClean: true, code: 1000, reason: 'normal' }); } catch(e) {}
+                  }
+                },
+                addEventListener: function(type, fn) {
+                  if (!listeners[type]) listeners[type] = [];
+                  listeners[type].push(fn);
+                },
+                removeEventListener: function(type, fn) {
+                  if (!listeners[type]) return;
+                  listeners[type] = listeners[type].filter(function(l) { return l !== fn; });
+                },
+                dispatchEvent: function(event) {
+                  var fns = listeners[event.type] || [];
+                  for (var i = 0; i < fns.length; i++) {
+                    try { fns[i].call(ws, event); } catch(e) {}
+                  }
+                  return true;
+                },
+                onopen: null,
+                onclose: null,
+                onerror: null,
+                onmessage: null,
+              };
+
+              setTimeout(function() {
+                if (ws.readyState === 1) {
+                  var evt = { type: 'open', target: ws };
+                  if (typeof ws.onopen === 'function') {
+                    try { ws.onopen(evt); } catch(e) {}
+                  }
+                  ws.dispatchEvent(evt);
+                }
+              }, 30);
+
+              return ws;
+            }
+
+            return new NativeWebSocket(url, protocols);
+          }
+
+          SafeWebSocket.prototype = NativeWebSocket.prototype;
+          SafeWebSocket.CONNECTING = 0;
+          SafeWebSocket.OPEN = 1;
+          SafeWebSocket.CLOSING = 2;
+          SafeWebSocket.CLOSED = 3;
+
+          try {
+            window.WebSocket = SafeWebSocket;
+          } catch(e) {}
+        }
+
+        var isWsErr = function(err, msg, file) {
+          var str = (msg || '') + ' ' + (file || '') + ' ' + 
+                    (err && err.message ? err.message : '') + ' ' + 
+                    (err && err.stack ? err.stack : '') + ' ' + 
+                    (err ? String(err) : '');
+          return str.indexOf('WebSocket') !== -1 || 
+                 str.indexOf('closed without opened') !== -1 || 
+                 str.indexOf('@vite/client') !== -1 ||
+                 str.indexOf('vite:ws') !== -1;
+        };
+
+        var origConsoleError = console.error;
+        console.error = function() {
+          var str = '';
+          for (var i = 0; i < arguments.length; i++) {
+            var arg = arguments[i];
+            str += ' ' + (arg && arg.message ? arg.message : '') + ' ' + (arg && arg.stack ? arg.stack : '') + ' ' + String(arg);
+          }
+          if (isWsErr(null, str, '')) {
+            return;
+          }
+          if (origConsoleError) origConsoleError.apply(console, arguments);
+        };
+
+        var origOnError = window.onerror;
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+          if (isWsErr(error, msg, url)) {
+            return true;
+          }
+          if (origOnError) return origOnError.apply(this, arguments);
+        };
+
+        window.addEventListener('error', function(event) {
+          if (event && isWsErr(event.error, event.message, event.filename)) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            return true;
+          }
+        }, true);
+
+        window.addEventListener('unhandledrejection', function(event) {
+          var reason = event && event.reason;
+          var msg = reason ? (reason.message || String(reason)) : '';
+          if (isWsErr(reason, msg, '')) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            return true;
+          }
+        }, true);
+      })();
+
+      // Capture PWA beforeinstallprompt as early as possible
+      window.deferredPWAInstallPrompt = null;
+      window.addEventListener('beforeinstallprompt', function(e) {
+        e.preventDefault();
+        window.deferredPWAInstallPrompt = e;
+        window.dispatchEvent(new CustomEvent('pwa-prompt-ready'));
+      });
+    </script>
+  </head>
+  <body class="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 antialiased transition-colors duration-200">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

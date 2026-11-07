@@ -1,0 +1,8 @@
+{
+  "name": "Remix ಕಛೇರಿ ಪತ್ರ ಮತ್ತು ಇತರೆ-1",
+  "description": "Education Department Letters \u0026 Files Management System with official correspondence tracking, inward/outward dak register, circular and order generator, docket file movement, and administrative reports.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

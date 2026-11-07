@@ -1,0 +1,91 @@
+[
+  {
+    "id": "file-45",
+    "fileNumber": "45",
+    "subject": "ಭದ್ರಾವತಿ ಶೈಕ್ಷಣಿಕ ವಲಯದ ಸರ್ಕಾರಿ ಪ್ರಾಥಮಿಕ ಶಾಲಾ ಶಿಕ್ಷಕರ ವಾರ್ಷಿಕ ವೇತನ ಬಡ್ತಿ ಪ್ರಪತ್ರ-28 ಮತ್ತು ಮಂಜೂರಾತಿ ಕಡತ 2026-27",
+    "section": "Administration & Services",
+    "sectionCode": "ಆ2",
+    "sectionName": "ಸ.ಪ್ರಾ.ಶಿ",
+    "fileCategory": "ವೇತನ & ಭತ್ಯೆ ಕಡತ (Salary & Increments)",
+    "initiatedDate": "2026-01-01",
+    "dueDate": "2026-10-30",
+    "lastMovedDate": "2026-01-05T10:00:00.000Z",
+    "status": "Active / Open",
+    "currentCustodian": "ಕಛೇರಿ ಅಧೀಕ್ಷಕರು / ಸಿಬ್ಬಂದಿ ಶಾಖೆ (ಆ2 - ಸ.ಪ್ರಾ.ಶಿ)",
+    "priority": "Urgent",
+    "linkedLetterIds": ["let-45-1"],
+    "lettersCount": 1,
+    "movementHistory": [
+      {
+        "id": "mov-45-1",
+        "fromOfficer": "ಪ್ರಥಮ ದರ್ಜೆ ಸಹಾಯಕರು (FDA - ಸಿಬ್ಬಂದಿ ಶಾಖೆ)",
+        "toOfficer": "ಕಛೇರಿ ಅಧೀಕ್ಷಕರು (OS - ಆ2)",
+        "sentDate": "2026-01-05",
+        "remarks": "ಜನವರಿ ಮಾಹೆಯ ವಾರ್ಷಿಕ ವೇತನ ಬಡ್ತಿ ಪ್ರಪತ್ರ-28 ಕಡತ ಸಂಖ್ಯೆ 45 ರಲ್ಲಿ ಪತ್ರ ಸೃಜಿಸಿ ಅನುಮೋದನೆಗೆ ಸಲ್ಲಿಸಲಾಗಿದೆ.",
+        "statusAfterMove": "Active / Open"
+      }
+    ],
+    "notes": "ಸರ್ಕಾರಿ ಪ್ರಾಥಮಿಕ ಶಾಲಾ ಶಿಕ್ಷಕರ ವಾರ್ಷಿಕ ವೇತನ ಬಡ್ತಿ ಕಡತ ಸಂಖ್ಯೆ 45 (ಆ2 - ಸ.ಪ್ರಾ.ಶಿ ಶಾಖೆ).",
+    "attachments": []
+  },
+  {
+    "id": "file-46",
+    "fileNumber": "46",
+    "subject": "ಸರ್ಕಾರಿ ಪ್ರಾಥಮಿಕ ಶಾಲಾ ಶಿಕ್ಷಕರ ಗಳಿಕೆ ರಜೆ (EL) ಹಾಗೂ ಶಿಶುಪಾಲನ ರಜೆ (CCL) ಮಂಜೂರಾತಿ ಕಡತ 2026-27",
+    "section": "Administration & Services",
+    "sectionCode": "ಆ2",
+    "sectionName": "ಸ.ಪ್ರಾ.ಶಿ",
+    "fileCategory": "ರಜೆ ಮಂಜೂರಾತಿ ಕಡತ (Leave Sanction)",
+    "initiatedDate": "2026-01-15",
+    "dueDate": "2026-11-15",
+    "lastMovedDate": "2026-01-16T11:30:00.000Z",
+    "status": "Under Review",
+    "currentCustodian": "ಪ್ರಥಮ ದರ್ಜೆ ಸಹಾಯಕರು (FDA - ರಜೆ ಶಾಖೆ)",
+    "priority": "Routine",
+    "linkedLetterIds": ["let-46-1"],
+    "lettersCount": 1,
+    "movementHistory": [
+      {
+        "id": "mov-46-1",
+        "fromOfficer": "ದ್ವಿತೀಯ ದರ್ಜೆ ಸಹಾಯಕರು (SDA - ಆವಕ ಶಾಖೆ)",
+        "toOfficer": "ಪ್ರಥಮ ದರ್ಜೆ ಸಹಾಯಕರು (FDA - ರಜೆ ಶಾಖೆ)",
+        "sentDate": "2026-01-16",
+        "remarks": "ಶಿಕ್ಷಕರ ಗಳಿಕೆ ರಜೆ ಪ್ರಸ್ತಾವನೆಯನ್ನು ಪರಿಶೀಲನೆಗೆ ಕಡತಕ್ಕೆ ಸೇರಿಸಿ ಸಲ್ಲಿಸಲಾಗಿದೆ.",
+        "statusAfterMove": "Under Review"
+      }
+    ],
+    "notes": "KCSR ನಿಯಮಾವಳಿಗಳಂತೆ ಗಳಿಕೆ ರಜೆ ಹಾಗೂ ಶಿಶುಪಾಲನ ರಜೆ ಮಂಜೂರಾತಿ ಕಡತ ಸಂಖ್ಯೆ 46.",
+    "attachments": []
+  },
+  {
+    "id": "file-47",
+    "fileNumber": "47",
+    "subject": "ಮಾಹಿತಿ ಹಕ್ಕು ಅಧಿನಿಯಮ 2005 ರ ಕಲಂ 6(1) ರನ್ವಯ ಸಾರ್ವಜನಿಕ ಮಾಹಿತಿ ಕಡತ 2026-27",
+    "section: 'Legal & Grievances'": true,
+    "sectionCode": "ಆ2",
+    "sectionName": "ಸ.ಪ್ರಾ.ಶಿ",
+    "section": "Legal & Grievances",
+    "fileCategory": "ಮಾಹಿತಿ ಹಕ್ಕು ಕಡತ (RTI & Legal)",
+    "initiatedDate": "2026-02-01",
+    "dueDate": "2026-03-02",
+    "lastMovedDate": "2026-02-02T14:00:00.000Z",
+    "status": "Active / Open",
+    "currentCustodian": "ಸಾರ್ವಜನಿಕ ಮಾಹಿತಿ ಅಧಿಕಾರಿ ಹಾಗೂ ಕ್ಷೇತ್ರ ಶಿಕ್ಷಣಾಧಿಕಾರಿಗಳು, ಭದ್ರಾವತಿ",
+    "priority": "Immediate",
+    "isRtiFile": true,
+    "linkedLetterIds": ["let-47-1"],
+    "lettersCount": 1,
+    "movementHistory": [
+      {
+        "id": "mov-47-1",
+        "fromOfficer": "ಸಹಾಯಕ ಸಾರ್ವಜನಿಕ ಮಾಹಿತಿ ಅಧಿಕಾರಿ (ಕಛೇರಿ ಅಧೀಕ್ಷಕರು)",
+        "toOfficer": "ಸಾರ್ವಜನಿಕ ಮಾಹಿತಿ ಅಧಿಕಾರಿ ಹಾಗೂ ಕ್ಷೇತ್ರ ಶಿಕ್ಷಣಾಧಿಕಾರಿಗಳು, ಭದ್ರಾವತಿ",
+        "sentDate": "2026-02-02",
+        "remarks": "ಕಲಂ 6(1) ರನ್ವಯ ಸ್ವೀಕೃತ ಅರ್ಜಿಯನ್ನು ಪರಿಶೀಲಿಸಿ 30 ದಿನಗಳ ಕಾಲಮಿತಿಯೊಳಗೆ ಮಾಹಿತಿ ನೀಡಲು ಮಂಡಿಸಲಾಗಿದೆ.",
+        "statusAfterMove": "Active / Open"
+      }
+    ],
+    "notes": "ಮಾಹಿತಿ ಹಕ್ಕು ಅರ್ಜಿ ಕಡತ ಸಂಖ್ಯೆ 47. ಕಾಲಮಿತಿ ವಿಲೇವಾರಿ ಕಡ್ಡಾಯ.",
+    "attachments": []
+  }
+]
