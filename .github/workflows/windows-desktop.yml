@@ -64,15 +64,11 @@ jobs:
           $sqlite = @(Get-ChildItem -Path $resources -Filter 'better_sqlite3.node' -Recurse -ErrorAction SilentlyContinue)
           if ($sqlite.Count -eq 0) { throw 'Native better_sqlite3.node missing from Windows package' }
           Write-Host ('Found '+$sqlite.Count+' packaged SQLite native module(s)')
-      - name: Publish build diagnostics
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: Windows-build-diagnostics
-          path: |
-            release/builder-debug.yml
-            release/builder-effective-config.yaml
-          if-no-files-found: ignore
+      - name: Verify Windows application executable
+        run: |
+          $executables = @(Get-ChildItem -Path 'release/win-unpacked' -Filter '*.exe' -File -ErrorAction SilentlyContinue | Where-Object { $_.Name -notmatch '^(elevate|uninstall)' })
+          if ($executables.Count -eq 0) { throw 'No packaged Windows application executable found' }
+          $executables | Select-Object Name,Length | Format-Table
       - name: Verify installer output
         run: |
           $installers = @(Get-ChildItem -Path 'release' -Filter '*.exe' -ErrorAction SilentlyContinue)
@@ -84,3 +80,12 @@ jobs:
           name: BEO-Bhadravathi-Windows-Setup
           path: release/*.exe
           if-no-files-found: error
+      - name: Publish build diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Windows-build-diagnostics
+          path: |
+            release/builder-debug.yml
+            release/builder-effective-config.yaml
+          if-no-files-found: ignore
