@@ -1,3 +1,4 @@
+import { OfficeReferencePicker } from './OfficeReferencePicker';
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   FileText,
@@ -416,6 +417,7 @@ export const GeneralLetterStudio: React.FC<GeneralLetterStudioProps> = ({
 
   return (
     <div className="space-y-6">
+      <OfficeReferencePicker />
       {/* Toast Notification */}
       {toastMsg && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-xl bg-stone-900 px-5 py-3 text-sm text-white shadow-xl animate-fade-in border border-stone-700">
