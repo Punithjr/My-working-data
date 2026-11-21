@@ -42,14 +42,14 @@ async function start() {
  // The installed Electron executable is used as the Node runtime. A missing or
  // quarantined executable must be handled as a launch failure, not an uncaught
  // main-process exception (spawn emits an asynchronous 'error' event).
- const executable=process.execPath;
+ // app.getAppPath() resolves to app.asar in packaged builds; it is a file, not a working directory.\n // Windows CreateProcess reports ENOENT when spawn() receives that invalid cwd.\n const executable=process.execPath;
  if(!fs.existsSync(executable)){
   dialog.showErrorBox('BEO E-Office', 'Application executable is missing: '+executable+'\\nRepair or reinstall the desktop application. Office records are unchanged.');
   app.quit();return;
  }
  let launchError=null;
  try {
-  child=spawn(executable,[server],{cwd:app.getAppPath(),windowsHide:true,stdio:['ignore','pipe','pipe'],env:{...process.env,ELECTRON_RUN_AS_NODE:'1',NODE_ENV:'production',BEO_DESKTOP:'1',BEO_DATA_ROOT:dataRoot,BEO_WEB_DIST:dist,BEO_PORT:String(PORT),NODE_PATH:path.join(app.getAppPath(),'node_modules')}});
+  child=spawn(executable,[server],{cwd:path.dirname(executable),windowsHide:true,stdio:['ignore','pipe','pipe'],env:{...process.env,ELECTRON_RUN_AS_NODE:'1',NODE_ENV:'production',BEO_DESKTOP:'1',BEO_DATA_ROOT:dataRoot,BEO_WEB_DIST:dist,BEO_PORT:String(PORT),NODE_PATH:path.join(app.getAppPath(),'node_modules')}});
  } catch(error) { launchError=error; }
  if(launchError){dialog.showErrorBox('BEO E-Office','Unable to launch local server: '+launchError.message+'\\nOffice records are unchanged.');app.quit();return;}
  let backendOutput='';
