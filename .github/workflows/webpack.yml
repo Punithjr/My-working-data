@@ -11,11 +11,15 @@ jobs:
       contents: read
     steps:
       - name: Checkout source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Setup Node 22
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '22'
+      - name: Office data commit guard
+        run: |
+          node --test scripts/check-office-data-commits.test.cjs
+          node scripts/check-office-data-commits.cjs
       - name: Install project dependencies
         run: npm install --no-audit --no-fund
       - name: Build Vite frontend and Node backend
