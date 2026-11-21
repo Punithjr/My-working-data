@@ -14,6 +14,9 @@ export default defineConfig(() => {
         includeAssets: ['icon.svg', 'apple-touch-icon.png', 'pwa-192x192.png', 'pwa-512x512.png'],
         workbox: {
           maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
+          navigateFallback: '/index.html',
+          navigateFallbackDenylist: [/^\/api(?:\/|$)/],
+          runtimeCaching: [],
         },
         manifest: {
           id: '/',
