@@ -9,6 +9,7 @@ on:
       - 'server.ts'
       - 'src/**'
       - 'package.json'
+      - 'hybrid/**'
       - 'vite.config.ts'
       - '.github/workflows/windows-desktop.yml'
 jobs:
@@ -54,6 +55,11 @@ jobs:
           if (!(Test-Path 'dist/index.html')) { throw 'Missing dist/index.html' }
       - name: Rebuild native SQLite for Electron
         run: npx electron-builder install-app-deps
+      - name: Verify rebuilt SQLite binary before packaging
+        run: |
+          $native = 'node_modules/better-sqlite3/build/Release/better_sqlite3.node'
+          if (!(Test-Path $native)) { throw 'Native SQLite binary was not built before packaging' }
+          Write-Host ('SQLite native binary: ' + (Resolve-Path $native))
       - name: Build Windows NSIS installer
         run: npx electron-builder --win nsis --publish never
       - name: Verify packaged backend, web assets and native SQLite module
@@ -63,9 +69,9 @@ jobs:
           $resources = Join-Path $appDir 'resources'
           if (!(Test-Path (Join-Path $resources 'backend/server.cjs'))) { throw 'Backend missing from Windows package' }
           if (!(Test-Path (Join-Path $resources 'web/index.html'))) { throw 'Frontend missing from Windows package' }
-          $sqlite = @(Get-ChildItem -Path $resources -Filter 'better_sqlite3.node' -Recurse -ErrorAction SilentlyContinue)
-          if ($sqlite.Count -eq 0) { throw 'Native better_sqlite3.node missing from Windows package' }
-          Write-Host ('Found '+$sqlite.Count+' packaged SQLite native module(s)')
+          $sqlite = Join-Path $resources 'backend/node_modules/better-sqlite3/build/Release/better_sqlite3.node'
+          if (!(Test-Path $sqlite)) { throw 'Native better_sqlite3.node missing beside packaged backend' }
+          Write-Host ('Found packaged SQLite native module: '+$sqlite)
       - name: Verify Windows application executable
         run: |
           $executables = @(Get-ChildItem -Path 'release/win-unpacked' -Filter '*.exe' -File -ErrorAction SilentlyContinue | Where-Object { $_.Name -notmatch '^(elevate|uninstall)' })
