@@ -24,6 +24,8 @@ jobs:
     steps:
       - name: Checkout source
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
       - name: Install Node.js 22
         uses: actions/setup-node@v6
         with:
