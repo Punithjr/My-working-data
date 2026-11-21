@@ -34,7 +34,7 @@ jobs:
           npm --version
           Get-ComputerInfo | Select-Object WindowsProductName,OsArchitecture
       - name: Install project dependencies
-        run: npm install --no-audit --no-fund
+        run: npm install --no-audit --no-fund --foreground-scripts
       - name: Validate desktop JavaScript syntax
         run: |
           node --check desktop/main.cjs
@@ -61,9 +61,12 @@ jobs:
           if (!(Test-Path $sqliteRoot)) { throw 'better-sqlite3 package missing after rebuild' }
           $native = @(Get-ChildItem -Path $sqliteRoot -Filter 'better_sqlite3.node' -Recurse -File -ErrorAction SilentlyContinue)
           if ($native.Count -eq 0) {
-            Get-ChildItem -Path $sqliteRoot -Recurse -File | Select-Object -First 40 FullName | Format-Table
-            throw 'SQLite native binary missing after Electron rebuild'
+            Write-Host 'Electron rebuild returned without a native binary; retrying from source'
+            Push-Location $sqliteRoot
+            try { npx --no-install node-gyp rebuild --release --verbose; if ($LASTEXITCODE -ne 0) { throw 'node-gyp rebuild failed' } } finally { Pop-Location }
+            $native = @(Get-ChildItem -Path $sqliteRoot -Filter 'better_sqlite3.node' -Recurse -File -ErrorAction SilentlyContinue)
           }
+          if ($native.Count -eq 0) { throw 'SQLite native binary still missing after source rebuild' }
           $native | Select-Object FullName,Length | Format-Table
       - name: Build Windows NSIS installer
         run: npx electron-builder --win nsis --publish never
