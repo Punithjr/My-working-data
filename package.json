@@ -62,7 +62,8 @@
     },
     "files": [
       "desktop/main.cjs",
-      "package.json"
+      "package.json",
+      "node_modules/**/*"
     ],
     "extraResources": [
       {
@@ -89,7 +90,15 @@
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
-      "artifactName": "BEO-Bhadravathi-Setup-${version}.${ext}"
-    }
+      "artifactName": "BEO-Bhadravathi-Setup-${version}.${ext}",
+      "perMachine": false,
+      "allowElevation": false,
+      "createStartMenuShortcut": true,
+      "deleteAppDataOnUninstall": false
+    },
+    "asarUnpack": [
+      "node_modules/better-sqlite3/**/*"
+    ],
+    "npmRebuild": true
   }
 }
