@@ -3,27 +3,64 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['desktop/**','server/**','server.ts','src/**','package.json','vite.config.ts','.github/workflows/windows-desktop.yml']
+    paths:
+      - 'desktop/**'
+      - 'server/**'
+      - 'server.ts'
+      - 'src/**'
+      - 'package.json'
+      - 'vite.config.ts'
+      - '.github/workflows/windows-desktop.yml'
 jobs:
   build:
     runs-on: windows-latest
+    timeout-minutes: 45
     permissions:
       contents: read
+    defaults:
+      run:
+        shell: pwsh
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Install Node.js 22
+        uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: npm install --no-audit --no-fund
-      - run: node --check desktop/main.cjs
-      - run: node --check desktop/backup.cjs
-      - run: node --check desktop/migrate.cjs
-      - run: node --test desktop/desktop.test.cjs
-      - run: npm run lint
-      - run: npm run build
-      - run: npx electron-builder install-app-deps
-      - run: npx electron-builder --win nsis --publish never
-      - uses: actions/upload-artifact@v4
+      - name: Record Windows and Node diagnostics
+        run: |
+          node --version
+          npm --version
+          Get-ComputerInfo | Select-Object WindowsProductName,OsArchitecture
+      - name: Install project dependencies
+        run: npm install --no-audit --no-fund
+      - name: Validate desktop JavaScript syntax
+        run: |
+          node --check desktop/main.cjs
+          node --check desktop/backup.cjs
+          node --check desktop/migrate.cjs
+          node --check desktop/desktop.test.cjs
+      - name: Test migration and backup/restore without real office data
+        run: node --test desktop/desktop.test.cjs
+      - name: Check TypeScript
+        run: npm run lint
+      - name: Build production frontend and backend
+        run: npm run build
+      - name: Verify packaged backend and frontend exist
+        run: |
+          if (!(Test-Path 'dist/server.cjs')) { throw 'Missing dist/server.cjs' }
+          if (!(Test-Path 'dist/index.html')) { throw 'Missing dist/index.html' }
+      - name: Rebuild native SQLite for Electron
+        run: npx electron-builder install-app-deps
+      - name: Build Windows NSIS installer
+        run: npx electron-builder --win nsis --publish never
+      - name: Verify installer output
+        run: |
+          $installers = @(Get-ChildItem -Path 'release' -Filter '*.exe' -ErrorAction SilentlyContinue)
+          if ($installers.Count -eq 0) { throw 'No Windows .exe installer produced' }
+          $installers | Select-Object Name,Length | Format-Table
+      - name: Upload Windows installer
+        uses: actions/upload-artifact@v4
         with:
           name: BEO-Bhadravathi-Windows-Setup
           path: release/*.exe
