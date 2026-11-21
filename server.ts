@@ -5,7 +5,7 @@ import fs from 'fs';
 import crypto from 'crypto';
 import dotenv from 'dotenv';
 import { GoogleGenAI } from '@google/genai';
-import { createServer as createViteServer } from 'vite';
+
 import { db } from './server/db';
 import { generateOfficeLetterDocx } from './server/letterDb';
 import { FRESH_OFFICIAL_LETTERS, FRESH_OFFICIAL_DOCKETS } from './server/freshData';
@@ -6409,6 +6409,7 @@ async function startServer() {
   const httpServer = http.createServer(app);
 
   if (process.env.NODE_ENV !== 'production') {
+    const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: {
         middlewareMode: true,
