@@ -6,3 +6,17 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Local office records — never commit real employee or office data
+/data/
+/BEO_EOFFICE/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+*.db
+*.db-wal
+*.db-shm
+*.bak
+*.backup
+*.pdf
+!public/**
