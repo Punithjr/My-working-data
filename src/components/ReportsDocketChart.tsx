@@ -27,7 +27,6 @@ interface MonthlyStatusData {
   completed: number;
   total: number;
   avgProcessingDays: number;
-  targetDays: number;
 }
 
 export const ReportsDocketChart: React.FC<ReportsDocketChartProps> = ({ files }) => {
@@ -106,12 +105,25 @@ export const ReportsDocketChart: React.FC<ReportsDocketChartProps> = ({ files })
         completed,
         total,
         avgProcessingDays: avgDays,
-        targetDays: 0, // No universal statutory SLA; use each file's dueDate for deadlines.
       });
     }
 
     return result;
   }, [files, selectedSectionFilter]);
+
+  const completedDurations = useMemo(() => files
+    .filter(f => (selectedSectionFilter === 'all' || f.section === selectedSectionFilter || f.sectionCode === selectedSectionFilter) && f.closedAt && f.initiatedDate)
+    .map(f => (new Date(f.closedAt!).getTime() - new Date(f.initiatedDate).getTime()) / 86400000)
+    .filter(days => Number.isFinite(days) && days >= 0), [files, selectedSectionFilter]);
+  const averageCompletedDays = completedDurations.length
+    ? (completedDurations.reduce((sum, days) => sum + days, 0) / completedDurations.length).toFixed(1)
+    : null;
+  const overdueOpenFiles = files.filter(f => {
+    if (selectedSectionFilter !== 'all' && f.section !== selectedSectionFilter && f.sectionCode !== selectedSectionFilter) return false;
+    if (!f.dueDate || /closed|disposed|ಮುಕ್ತಾಯ|ವಿಲೇವಾರಿ/i.test(f.status || '')) return false;
+    const deadline = new Date(f.dueDate).getTime();
+    return Number.isFinite(deadline) && deadline < Date.now();
+  }).length;
 
   // Section choices for dropdown
   const sectionsList = useMemo(() => {
@@ -219,13 +231,13 @@ export const ReportsDocketChart: React.FC<ReportsDocketChartProps> = ({ files })
           </span>
         </div>
         <div>
-          <span className="text-stone-500 font-medium block">ಸದ್ಯ ಚಾಲ್ತಿಯಲ್ಲಿರುವ ಸರಾಸರಿ:</span>
+          <span className="text-stone-500 font-medium block">ಪೂರ್ಣಗೊಂಡ ಕಡತಗಳ ಸರಾಸರಿ:</span>
           <span className="text-base font-bold font-mono text-sky-950">
-            {monthlyData[monthlyData.length - 1]?.avgProcessingDays || 6.2} ದಿನಗಳು / ಕಡತ
+            {averageCompletedDays === null ? 'ದತ್ತಾಂಶ ಲಭ್ಯವಿಲ್ಲ' : `${averageCompletedDays} ದಿನಗಳು / ಕಡತ`}
           </span>
         </div>
         <div>
-          <span className="text-stone-500 font-medium block">ಶಾಸನಬದ್ಧ SLA ಗುರಿ:</span>
+          <span className="text-stone-500 font-medium block">ಗಡುವು ಮೀರಿದ ಚಾಲ್ತಿ ಕಡತಗಳು:</span>
           <span className="text-base font-bold font-mono text-amber-900 flex items-center gap-1">
             <span>&lt; 7.0 ದಿನಗಳು</span>
             <span className="text-[10px] px-1.5 py-0.2 bg-emerald-100 text-emerald-900 border border-emerald-300 rounded font-sans font-bold">ಸಾಧಿಸಿದೆ</span>
@@ -316,7 +328,6 @@ export const ReportsDocketChart: React.FC<ReportsDocketChartProps> = ({ files })
             ) : (
               <>
                 <Bar yAxisId="left" dataKey="avgProcessingDays" name="ಸರಾಸರಿ ವಿಲೇವಾರಿ ದಿನಗಳು (Avg Days)" fill="#0284c7" radius={[4, 4, 0, 0]} />
-                <Line yAxisId="left" dataKey="targetDays" name="ಶಾಸನಬದ್ಧ SLA ಗುರಿ (7 Days Target)" stroke="#10b981" strokeWidth={2} strokeDasharray="5 5" dot={false} />
               </>
             )}
 
