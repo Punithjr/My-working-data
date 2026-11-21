@@ -4,12 +4,8 @@ import './lib/firebase';
 import App from './App.tsx';
 import './index.css';
 
-// Clean browser service worker registration for PWA
-if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {});
-  });
-}
+// vite-plugin-pwa injects the production service worker registration.
+// Avoid registering a second service worker manually.
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
