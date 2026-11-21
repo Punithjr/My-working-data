@@ -221,7 +221,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
   // Date-only deadlines remain valid through the end of the local calendar day.
   const dueTimestamp = (value?: string): number => {
     if (!value) return NaN;
-    const dateOnly = /^\\d{4}-\\d{2}-\\d{2}$/.test(value);
+    const dateOnly = /^\d{4}-\d{2}-\d{2}$/.test(value);
     const parsed = new Date(dateOnly ? value + 'T23:59:59.999' : value);
     return parsed.getTime();
   };
