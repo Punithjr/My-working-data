@@ -1,3 +1,4 @@
+import { OfficeReferencePicker } from './OfficeReferencePicker';
 import React, { useState } from 'react';
 import {
   FileText,
@@ -213,6 +214,7 @@ export const StatutoryCircularStudio: React.FC<StatutoryCircularStudioProps> = (
 
   return (
     <div className="space-y-6 pb-12">
+      <OfficeReferencePicker />
       {/* Title Banner */}
       <div className="bg-white border-2 border-[#2b2b2b] rounded-xl p-5 shadow-[4px_4px_0px_#2b2b2b]">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
