@@ -54,6 +54,25 @@ jobs:
         run: npx electron-builder install-app-deps
       - name: Build Windows NSIS installer
         run: npx electron-builder --win nsis --publish never
+      - name: Verify packaged backend, web assets and native SQLite module
+        run: |
+          $appDir = 'release/win-unpacked'
+          if (!(Test-Path $appDir)) { throw 'Missing unpacked Windows application' }
+          $resources = Join-Path $appDir 'resources'
+          if (!(Test-Path (Join-Path $resources 'backend/server.cjs'))) { throw 'Backend missing from Windows package' }
+          if (!(Test-Path (Join-Path $resources 'web/index.html'))) { throw 'Frontend missing from Windows package' }
+          $sqlite = @(Get-ChildItem -Path $resources -Filter 'better_sqlite3.node' -Recurse -ErrorAction SilentlyContinue)
+          if ($sqlite.Count -eq 0) { throw 'Native better_sqlite3.node missing from Windows package' }
+          Write-Host ('Found '+$sqlite.Count+' packaged SQLite native module(s)')
+      - name: Publish build diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Windows-build-diagnostics
+          path: |
+            release/builder-debug.yml
+            release/builder-effective-config.yaml
+          if-no-files-found: ignore
       - name: Verify installer output
         run: |
           $installers = @(Get-ChildItem -Path 'release' -Filter '*.exe' -ErrorAction SilentlyContinue)
