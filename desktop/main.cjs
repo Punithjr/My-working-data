@@ -11,7 +11,7 @@ async function start() {
  const dataRoot=root();fs.mkdirSync(dataRoot,{recursive:true});
  const server=path.join(process.resourcesPath,'backend','server.cjs');
  const dist=path.join(process.resourcesPath,'web');
- child=spawn(process.execPath,[server],{cwd:app.getAppPath(),windowsHide:true,env:{...process.env,ELECTRON_RUN_AS_NODE:'1',NODE_ENV:'production',BEO_DESKTOP:'1',BEO_DATA_ROOT:dataRoot,BEO_WEB_DIST:dist,BEO_PORT:String(PORT)}});
+ child=spawn(process.execPath,[server],{cwd:app.getAppPath(),windowsHide:true,env:{...process.env,ELECTRON_RUN_AS_NODE:'1',NODE_ENV:'production',BEO_DESKTOP:'1',BEO_DATA_ROOT:dataRoot,BEO_WEB_DIST:dist,BEO_PORT:String(PORT),NODE_PATH:path.join(app.getAppPath(),'node_modules')}});
  child.on('exit',(code)=>{if(code!==0&&window&&!window.isDestroyed())dialog.showErrorBox('BEO E-Office','Local server stopped unexpectedly. Check application logs.');});
  let ready=false;for(let i=0;i<60;i++){if(await ping()){ready=true;break;}await new Promise(r=>setTimeout(r,500));}
  if(!ready){dialog.showErrorBox('BEO E-Office','Local server could not start. No office records were deleted.');app.quit();return;}
