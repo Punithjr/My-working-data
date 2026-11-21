@@ -61,7 +61,7 @@
       "output": "release"
     },
     "files": [
-      "desktop/main.cjs",
+      "desktop/**/*",
       "package.json",
       "node_modules/**/*"
     ],
@@ -78,6 +78,13 @@
       {
         "from": "dist/server.cjs",
         "to": "backend/server.cjs"
+      },
+      {
+        "from": "node_modules/better-sqlite3",
+        "to": "backend/node_modules/better-sqlite3",
+        "filter": [
+          "**/*"
+        ]
       }
     ],
     "asar": true,
