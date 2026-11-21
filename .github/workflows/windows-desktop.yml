@@ -42,6 +42,8 @@ jobs:
           node --check desktop/desktop.test.cjs
       - name: Test migration and backup/restore without real office data
         run: node --test desktop/desktop.test.cjs
+      - name: Test hybrid local-only bridge with synthetic data
+        run: node --test hybrid/office-bridge.test.cjs
       - name: Check TypeScript
         run: npm run lint
       - name: Build production frontend and backend
