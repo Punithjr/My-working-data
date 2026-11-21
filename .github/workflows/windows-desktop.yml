@@ -33,6 +33,10 @@ jobs:
           node --version
           npm --version
           Get-ComputerInfo | Select-Object WindowsProductName,OsArchitecture
+      - name: Office data commit guard
+        run: |
+          node --test scripts/check-office-data-commits.test.cjs
+          node scripts/check-office-data-commits.cjs
       - name: Install project dependencies
         run: npm install --no-audit --no-fund --foreground-scripts
       - name: Validate desktop JavaScript syntax
