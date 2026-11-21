@@ -5,6 +5,7 @@ const { execFileSync } = require('node:child_process');
 function forbidden(file) {
   const f = String(file).replace(/\\/g, '/');
   return /^(?:data|BEO_EOFFICE|OfficeData|backups)(?:\/|$)/i.test(f)
+    || /(?:^|\/)OfficeData(?:\/|$)/i.test(f)
     || /(?:^|\/)\.env(?:\.|$)/i.test(f) && !/(?:^|\/)\.env\.example$/.test(f)
     || /\.(?:sqlite(?:-(?:wal|shm))?|db(?:-(?:wal|shm))?|bak|backup|p12|pfx|pem)$/i.test(f);
 }
