@@ -1,3 +1,4 @@
+import { OFFICE_REFERENCE_BOOKS } from '../data/officeReferenceBooks';
 import React, { useState, useMemo, useEffect } from 'react';
 import {
   BookOpen,
@@ -194,6 +195,25 @@ export const StatutoryBooksView: React.FC<StatutoryBooksViewProps> = ({
           <span>{feedbackToast}</span>
         </div>
       )}
+
+      {/* Verified external reference catalogue; no copyrighted PDFs bundled. */}
+      <section className="rounded-2xl border border-amber-200 bg-white p-5 shadow-sm">
+        <h2 className="text-xl font-bold font-kannada mb-2">ಕಚೇರಿ ಸಂಬಂಧಿತ ಸರ್ಕಾರಿ ಪುಸ್ತಕಗಳು ಮತ್ತು ಅಧಿಕೃತ ಮೂಲಗಳು</h2>
+        <p className="text-xs text-stone-600 font-kannada mb-4">ಮೂಲ ದಾಖಲೆಗಳನ್ನು ತೆರೆಯಿರಿ. ಪತ್ರದಲ್ಲಿ ಬಳಸುವ ಮೊದಲು ತಿದ್ದುಪಡಿ ಆದೇಶ ಮತ್ತು ಅನ್ವಯ ಪರಿಶೀಲಿಸಿ. ಆಫ್‌ಲೈನ್ ಬಳಕೆಗೆ ಅನುಮತಿಸಲಾದ PDF ಅನ್ನು ಪ್ರತ್ಯೇಕವಾಗಿ ಸಂಗ್ರಹಿಸಬೇಕು.</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {OFFICE_REFERENCE_BOOKS.map(book => (
+            <a key={book.id} href={book.url} target="_blank" rel="noopener noreferrer"
+              className="block rounded-xl border border-stone-200 p-3 hover:bg-amber-50 hover:border-amber-300 transition">
+              <span className="text-[10px] font-bold text-amber-800">{book.category} · {book.source}</span>
+              <div className="flex items-start justify-between gap-2 mt-1">
+                <span className="text-sm font-semibold font-kannada">{book.title}</span>
+                <ExternalLink className="w-4 h-4 shrink-0" />
+              </div>
+              <p className="text-xs text-stone-600 font-kannada mt-1">{book.note}</p>
+            </a>
+          ))}
+        </div>
+      </section>
 
       {/* Top Directorate Banner */}
       <div className="bg-gradient-to-r from-[#2b2b2b] via-[#3a3a3a] to-[#2b2b2b] text-white p-6 sm:p-8 rounded-2xl border-[2.5px] border-[#2b2b2b] shadow-[6px_6px_0px_#f59e0b] relative overflow-hidden">
