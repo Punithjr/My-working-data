@@ -17,7 +17,7 @@ import { generateLetterDocxBuffer, generateFileLettersExcelBuffer, DEFAULT_PRINT
 dotenv.config();
 
 const app = express();
-const PORT = 3000;
+const PORT = Number(process.env.BEO_PORT || 3000);
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
@@ -1564,9 +1564,9 @@ function loadExcelEmployeesFromChunks(): Employee[] {
 
 const initialExcelEmployees = loadExcelEmployeesFromChunks();
 
-const EMPLOYEES_STORAGE_FILE = path.join(process.cwd(), 'data', 'employees_store.json');
-const LETTERS_STORAGE_FILE = path.join(process.cwd(), 'data', 'letters_store.json');
-const DOCKETS_STORAGE_FILE = path.join(process.cwd(), 'data', 'dockets_store.json');
+const EMPLOYEES_STORAGE_FILE = path.join(process.env.BEO_DATA_ROOT || process.cwd(), 'data', 'employees_store.json');
+const LETTERS_STORAGE_FILE = path.join(process.env.BEO_DATA_ROOT || process.cwd(), 'data', 'letters_store.json');
+const DOCKETS_STORAGE_FILE = path.join(process.env.BEO_DATA_ROOT || process.cwd(), 'data', 'dockets_store.json');
 
 function savePersistentEmployees(list: Employee[]) {
   try {
@@ -6418,14 +6418,14 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.join(process.cwd(), 'dist');
+    const distPath = process.env.BEO_WEB_DIST || path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
 
-  httpServer.listen(PORT, '0.0.0.0', () => {
+  httpServer.listen(PORT, process.env.BEO_DESKTOP === '1' ? '127.0.0.1' : '0.0.0.0', () => {
     console.log(`Education Department Letters & Files Server running on http://0.0.0.0:${PORT}`);
   });
 }
