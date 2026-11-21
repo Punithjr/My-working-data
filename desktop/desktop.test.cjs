@@ -9,7 +9,7 @@ test('migration preserves originals; backup and restore preserve contents',()=>{
   const run=(file,args)=>{const r=spawnSync(process.execPath,[path.join(__dirname,file),...args],{encoding:'utf8'});assert.equal(r.status,0,r.stderr);};
   run('migrate.cjs',[old,dest]);
   assert.equal(fs.readFileSync(path.join(old,'data','employees_store.json'),'utf8'),'{"test":"synthetic"}');
-  run('backup.cjs',['backup',dest]);run('backup.cjs',['restore',backup,restored]);
+  run('backup.cjs',['backup',backup,dest]);run('backup.cjs',['restore',backup,restored]);
   assert.equal(fs.readFileSync(path.join(restored,'BEO_EOFFICE','Files','letter.txt'),'utf8'),'ನಮಸ್ಕಾರ');
   const again=spawnSync(process.execPath,[path.join(__dirname,'migrate.cjs'),old,dest],{encoding:'utf8'});
   assert.notEqual(again.status,0,'second migration must refuse overwrites');
