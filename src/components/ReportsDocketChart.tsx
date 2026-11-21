@@ -61,9 +61,9 @@ export const ReportsDocketChart: React.FC<ReportsDocketChartProps> = ({ files })
         if (selectedSectionFilter !== 'all' && f.section !== selectedSectionFilter && f.sectionCode !== selectedSectionFilter) {
           return false;
         }
-        if (!f.initiatedDate) return true;
+        if (!f.initiatedDate) return false;
         const fileDate = new Date(f.initiatedDate);
-        if (isNaN(fileDate.getTime())) return true;
+        if (isNaN(fileDate.getTime())) return false;
         return fileDate.getFullYear() === year && fileDate.getMonth() === monthIdx;
       });
 
@@ -86,27 +86,27 @@ export const ReportsDocketChart: React.FC<ReportsDocketChartProps> = ({ files })
         }
       });
 
-      // Realistic historical baseline if data is sparse in sample
-      const basePending = Math.max(pending, (6 - i) * 3 + 4);
-      const baseInTransit = Math.max(inTransit, 2 + (i % 3));
-      const baseUnderReview = Math.max(underReview, 3 + (i % 2) * 2);
-      const baseCompleted = Math.max(completed, (i + 1) * 4 + 8);
-      const total = basePending + baseInTransit + baseUnderReview + baseCompleted;
-
-      // Realistic average processing turnaround time (decreasing over time showing improvement)
-      const avgDays = Number((8.5 - (5 - i) * 0.45 + ((i % 2) === 0 ? 0.3 : -0.2)).toFixed(1));
+      // Use only persisted docket records; never fabricate dashboard metrics.
+      const total = pending + inTransit + underReview + completed;
+      const completedDurations = monthFiles
+        .filter(f => f.closedAt && f.initiatedDate)
+        .map(f => (new Date(f.closedAt!).getTime() - new Date(f.initiatedDate).getTime()) / 86400000)
+        .filter(days => Number.isFinite(days) && days >= 0);
+      const avgDays = completedDurations.length
+        ? Number((completedDurations.reduce((sum, days) => sum + days, 0) / completedDurations.length).toFixed(1))
+        : 0;
 
       result.push({
         monthKey,
         monthKn: KANNADA_MONTHS[monthIdx],
         monthEn: `${ENGLISH_MONTHS[monthIdx]} ${year}`,
-        pending: basePending,
-        inTransit: baseInTransit,
-        underReview: baseUnderReview,
-        completed: baseCompleted,
+        pending,
+        inTransit,
+        underReview,
+        completed,
         total,
         avgProcessingDays: avgDays,
-        targetDays: 7.0, // Statutory target SLA of 7 working days
+        targetDays: 0, // No universal statutory SLA; use each file's dueDate for deadlines.
       });
     }
 
