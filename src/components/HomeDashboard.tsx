@@ -205,11 +205,12 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
   // Real Database Statistics (NO fabricated numbers)
   const now = new Date();
 
-  // 1. Files Statistics
+  // Treat all terminal docket statuses consistently across dashboard KPIs.
+  const isClosedFile = (status: string) => /disposed|closed|withdrawn|ಮುಕ್ತಾಯ|ವಿಲೇವಾರಿ|ಹಿಂಪಡೆ/i.test(status || '');
   const totalFilesCount = sectionFilteredFiles.length;
-  const pendingFiles = sectionFilteredFiles.filter(f => f.status !== 'disposed' && f.status !== 'Disposed / Closed');
+  const pendingFiles = sectionFilteredFiles.filter(f => !isClosedFile(f.status));
   const pendingFilesCount = pendingFiles.length;
-  const completedFiles = sectionFilteredFiles.filter(f => f.status === 'disposed' || f.status === 'Disposed / Closed');
+  const completedFiles = sectionFilteredFiles.filter(f => isClosedFile(f.status));
   const completedFilesCount = completedFiles.length;
 
   // 2. Letters Statistics
@@ -217,21 +218,21 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
   const inwardLettersCount = sectionFilteredLetters.filter(l => (l.direction || '').toLowerCase() === 'inward').length;
   const outwardLettersCount = sectionFilteredLetters.filter(l => (l.direction || '').toLowerCase() === 'outward').length;
 
-  // 3. SLA & Deadline Statistics
+  // Date-only deadlines remain valid through the end of the local calendar day.
+  const dueTimestamp = (value?: string): number => {
+    if (!value) return NaN;
+    const dateOnly = /^\\d{4}-\\d{2}-\\d{2}$/.test(value);
+    const parsed = new Date(dateOnly ? value + 'T23:59:59.999' : value);
+    return parsed.getTime();
+  };
   const overdueFiles = pendingFiles.filter(f => {
-    if (!f.dueDate) return false;
-    const due = new Date(f.dueDate).getTime();
-    return !isNaN(due) && due < now.getTime();
+    const due = dueTimestamp(f.dueDate);
+    return Number.isFinite(due) && due < now.getTime();
   });
-
   const dueSoonFiles = pendingFiles.filter(f => {
-    if (!f.dueDate) return false;
-    const due = new Date(f.dueDate).getTime();
-    if (isNaN(due) || due < now.getTime()) return false;
-    const diffHours = (due - now.getTime()) / (1000 * 3600);
-    return diffHours <= 48;
+    const due = dueTimestamp(f.dueDate);
+    return Number.isFinite(due) && due >= now.getTime() && due - now.getTime() <= 48 * 3600000;
   });
-
   const onTimeFilesCount = Math.max(0, pendingFilesCount - overdueFiles.length - dueSoonFiles.length);
   const slaComplianceRate = pendingFilesCount > 0 ? Math.round(((pendingFilesCount - overdueFiles.length) / pendingFilesCount) * 100) : null;
 
