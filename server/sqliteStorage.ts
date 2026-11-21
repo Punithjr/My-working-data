@@ -3,9 +3,9 @@ import path from 'path';
 import Database from 'better-sqlite3';
 import { MasterDocketFile, EducationLetter, DocumentAttachment, FileMovementRecord } from '../src/types';
 
-export const BEO_EOFFICE_ROOT = path.resolve(process.cwd(), 'BEO_EOFFICE');
+export const BEO_EOFFICE_ROOT = path.join(process.env.BEO_DATA_ROOT || process.cwd(), 'BEO_EOFFICE');
 export const BEO_FILES_DIR = path.join(BEO_EOFFICE_ROOT, 'Files');
-export const SQLITE_DB_PATH = path.resolve(process.cwd(), 'data', 'beo_eoffice.sqlite');
+export const SQLITE_DB_PATH = path.join(process.env.BEO_DATA_ROOT || process.cwd(), 'data', 'beo_eoffice.sqlite');
 
 export interface SQLiteFileRecord {
   file_id: string;
