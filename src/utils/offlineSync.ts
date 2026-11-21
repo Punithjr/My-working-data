@@ -61,7 +61,8 @@ export async function queueOfflineAction(action: Omit<PendingAction, 'id' | 'tim
     return id;
   } catch (err) {
     console.error('Failed to queue offline action in IndexedDB:', err);
-    return id;
+    // Never acknowledge a write that IndexedDB failed to persist.
+    throw new Error('Offline action was not saved. Keep the form open and retry.');
   }
 }
 
@@ -87,8 +88,14 @@ export async function clearOfflineAction(id: string): Promise<void> {
     const tx = db.transaction(STORE_NAME, 'readwrite');
     const store = tx.objectStore(STORE_NAME);
     store.delete(id);
+    await new Promise<void>((resolve, reject) => {
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+      tx.onabort = () => reject(tx.error || new Error('Offline queue deletion aborted'));
+    });
   } catch (err) {
     console.error('Failed to clear action from IndexedDB:', err);
+    throw err;
   }
 }
 
@@ -98,8 +105,11 @@ export function registerOnlineSyncHandler(
 ) {
   if (typeof window === 'undefined') return;
 
+  let syncing = false;
   const triggerSync = async () => {
-    if (!navigator.onLine) return;
+    if (!navigator.onLine || syncing) return;
+    syncing = true;
+    try {
     const actions = await getPendingOfflineActions();
     if (actions.length === 0) return;
 
@@ -119,6 +129,7 @@ export function registerOnlineSyncHandler(
     if (syncedCount > 0 && onSyncComplete) {
       onSyncComplete(syncedCount);
     }
+    } finally { syncing = false; }
   };
 
   window.addEventListener('online', triggerSync);
