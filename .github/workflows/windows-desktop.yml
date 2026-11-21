@@ -57,9 +57,14 @@ jobs:
         run: npx electron-builder install-app-deps
       - name: Verify rebuilt SQLite binary before packaging
         run: |
-          $native = 'node_modules/better-sqlite3/build/Release/better_sqlite3.node'
-          if (!(Test-Path $native)) { throw 'Native SQLite binary was not built before packaging' }
-          Write-Host ('SQLite native binary: ' + (Resolve-Path $native))
+          $sqliteRoot = 'node_modules/better-sqlite3'
+          if (!(Test-Path $sqliteRoot)) { throw 'better-sqlite3 package missing after rebuild' }
+          $native = @(Get-ChildItem -Path $sqliteRoot -Filter 'better_sqlite3.node' -Recurse -File -ErrorAction SilentlyContinue)
+          if ($native.Count -eq 0) {
+            Get-ChildItem -Path $sqliteRoot -Recurse -File | Select-Object -First 40 FullName | Format-Table
+            throw 'SQLite native binary missing after Electron rebuild'
+          }
+          $native | Select-Object FullName,Length | Format-Table
       - name: Build Windows NSIS installer
         run: npx electron-builder --win nsis --publish never
       - name: Verify packaged backend, web assets and native SQLite module
@@ -69,9 +74,11 @@ jobs:
           $resources = Join-Path $appDir 'resources'
           if (!(Test-Path (Join-Path $resources 'backend/server.cjs'))) { throw 'Backend missing from Windows package' }
           if (!(Test-Path (Join-Path $resources 'web/index.html'))) { throw 'Frontend missing from Windows package' }
-          $sqlite = Join-Path $resources 'backend/node_modules/better-sqlite3/build/Release/better_sqlite3.node'
-          if (!(Test-Path $sqlite)) { throw 'Native better_sqlite3.node missing beside packaged backend' }
-          Write-Host ('Found packaged SQLite native module: '+$sqlite)
+          $sqliteRoot = Join-Path $resources 'backend/node_modules/better-sqlite3'
+          if (!(Test-Path $sqliteRoot)) { throw 'better-sqlite3 package missing beside packaged backend' }
+          $sqlite = @(Get-ChildItem -Path $sqliteRoot -Filter 'better_sqlite3.node' -Recurse -File -ErrorAction SilentlyContinue)
+          if ($sqlite.Count -eq 0) { throw 'Native better_sqlite3.node missing beside packaged backend' }
+          $sqlite | Select-Object FullName,Length | Format-Table
       - name: Verify Windows application executable
         run: |
           $executables = @(Get-ChildItem -Path 'release/win-unpacked' -Filter '*.exe' -File -ErrorAction SilentlyContinue | Where-Object { $_.Name -notmatch '^(elevate|uninstall)' })
