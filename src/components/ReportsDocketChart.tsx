@@ -88,7 +88,7 @@ export const ReportsDocketChart: React.FC<ReportsDocketChartProps> = ({ files })
       // Use only persisted docket records; never fabricate dashboard metrics.
       const total = pending + inTransit + underReview + completed;
       const completedDurations = monthFiles
-        .filter(f => f.closedAt && f.initiatedDate)
+        .filter(f => f.closedAt && f.initiatedDate && /closed|disposed|ಮುಕ್ತಾಯ|ವಿಲೇವಾರಿ/i.test(f.status || ''))
         .map(f => (new Date(f.closedAt!).getTime() - new Date(f.initiatedDate).getTime()) / 86400000)
         .filter(days => Number.isFinite(days) && days >= 0);
       const avgDays = completedDurations.length
@@ -112,7 +112,7 @@ export const ReportsDocketChart: React.FC<ReportsDocketChartProps> = ({ files })
   }, [files, selectedSectionFilter]);
 
   const completedDurations = useMemo(() => files
-    .filter(f => (selectedSectionFilter === 'all' || f.section === selectedSectionFilter || f.sectionCode === selectedSectionFilter) && f.closedAt && f.initiatedDate)
+    .filter(f => (selectedSectionFilter === 'all' || f.section === selectedSectionFilter || f.sectionCode === selectedSectionFilter) && f.closedAt && f.initiatedDate && /closed|disposed|ಮುಕ್ತಾಯ|ವಿಲೇವಾರಿ/i.test(f.status || ''))
     .map(f => (new Date(f.closedAt!).getTime() - new Date(f.initiatedDate).getTime()) / 86400000)
     .filter(days => Number.isFinite(days) && days >= 0), [files, selectedSectionFilter]);
   const averageCompletedDays = completedDurations.length
@@ -121,7 +121,7 @@ export const ReportsDocketChart: React.FC<ReportsDocketChartProps> = ({ files })
   const overdueOpenFiles = files.filter(f => {
     if (selectedSectionFilter !== 'all' && f.section !== selectedSectionFilter && f.sectionCode !== selectedSectionFilter) return false;
     if (!f.dueDate || /closed|disposed|ಮುಕ್ತಾಯ|ವಿಲೇವಾರಿ/i.test(f.status || '')) return false;
-    const deadline = new Date(f.dueDate).getTime();
+    const deadline = new Date(/^\d{4}-\d{2}-\d{2}$/.test(f.dueDate) ? `${f.dueDate}T23:59:59.999` : f.dueDate).getTime();
     return Number.isFinite(deadline) && deadline < Date.now();
   }).length;
 
