@@ -55,14 +55,23 @@ export const GitHubSyncPanel: React.FC<GitHubSyncPanelProps> = ({
   const [config, setConfig] = useState<GitHubSyncConfig>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return {
+          pat: parsed.pat || '',
+          repoOwner: parsed.repoOwner || 'Punithjr',
+          repoName: parsed.repoName || 'ARYA-PUNITH',
+          branch: parsed.branch || 'main',
+          pathPrefix: parsed.pathPrefix || 'e-office-backups/2026-27'
+        };
+      }
     } catch (e) {
       // ignore
     }
     return {
       pat: '',
-      repoOwner: '',
-      repoName: '',
+      repoOwner: 'Punithjr',
+      repoName: 'ARYA-PUNITH',
       branch: 'main',
       pathPrefix: 'e-office-backups/2026-27'
     };
@@ -79,6 +88,38 @@ export const GitHubSyncPanel: React.FC<GitHubSyncPanelProps> = ({
   const [lastSyncDate, setLastSyncDate] = useState<string | null>(() => {
     return localStorage.getItem('karnataka_last_github_sync') || null;
   });
+
+  // Live Commits Feed from Punithjr/ARYA-PUNITH
+  const [commits, setCommits] = useState<Array<{
+    sha: string;
+    shortSha: string;
+    message: string;
+    author: string;
+    date: string;
+    htmlUrl: string;
+  }>>([]);
+  const [isLoadingCommits, setIsLoadingCommits] = useState(false);
+
+  const fetchRepoCommits = async () => {
+    setIsLoadingCommits(true);
+    try {
+      const res = await fetch(`/api/github/commits?owner=${encodeURIComponent(config.repoOwner || 'Punithjr')}&repo=${encodeURIComponent(config.repoName || 'ARYA-PUNITH')}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.commits) {
+          setCommits(data.commits);
+        }
+      }
+    } catch (e) {
+      // ignore
+    } finally {
+      setIsLoadingCommits(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRepoCommits();
+  }, [config.repoOwner, config.repoName]);
 
   // Save config on change
   const handleSaveConfig = () => {
@@ -754,6 +795,147 @@ export const GitHubSyncPanel: React.FC<GitHubSyncPanelProps> = ({
               )}
             </div>
           )}
+        </div>
+      </div>
+
+      {/* GitHub Commits Data Link & History for Punithjr/ARYA-PUNITH */}
+      <div className="bg-white rounded-xl border border-stone-200 shadow-xs p-5 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-200 pb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-lg bg-stone-900 text-amber-400 flex items-center justify-center font-bold font-mono text-sm shadow-xs">
+              Git
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold text-sm text-stone-900 font-kannada">
+                  ಗಿಟ್‌ಹಬ್ ಕಮಿಟ್ಸ್ ಡೇಟಾ ಲಿಂಕ್ (Repository Commits & Files Link)
+                </h3>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                  LINKED
+                </span>
+              </div>
+              <p className="text-xs text-stone-500 font-mono">
+                https://github.com/Punithjr/ARYA-PUNITH
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={fetchRepoCommits}
+              disabled={isLoadingCommits}
+              className="px-3 py-1.5 text-xs font-semibold text-stone-700 bg-stone-100 hover:bg-stone-200 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer"
+              title="ಕಮಿಟ್ಸ್ ರಿಫ್ರೆಶ್ ಮಾಡಿ"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isLoadingCommits ? 'animate-spin' : ''}`} />
+              <span>ರಿಫ್ರೆಶ್ (Refresh Commits)</span>
+            </button>
+
+            <a
+              href="https://github.com/Punithjr/ARYA-PUNITH"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-1.5 text-xs font-bold text-white bg-stone-900 hover:bg-stone-800 rounded-lg flex items-center gap-1.5 transition-colors shadow-xs"
+            >
+              <span>GitHub ನಲ್ಲಿ ತೆರೆಯಿರಿ</span>
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
+          </div>
+        </div>
+
+        {/* Commits List */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-xs font-bold text-stone-600 px-1">
+            <span>ರೆಪೊಸಿಟರಿ ಕಮಿಟ್ ಇತಿಹಾಸ (Recent Commits from ARYA-PUNITH):</span>
+            <span className="font-mono text-[11px] text-stone-500">{commits.length} commits</span>
+          </div>
+
+          {isLoadingCommits ? (
+            <div className="p-6 text-center text-xs text-stone-500 flex items-center justify-center gap-2">
+              <RefreshCw className="w-4 h-4 animate-spin text-sky-800" />
+              <span>ಕಮಿಟ್ ಡೇಟಾ ಪಡೆಯಲಾಗುತ್ತಿದೆ...</span>
+            </div>
+          ) : commits.length === 0 ? (
+            <div className="p-6 text-center text-xs text-stone-500 bg-stone-50 rounded-lg border border-stone-200">
+              ಯಾವುದೇ ಕಮಿಟ್ ವಿವರ ಲಭ್ಯವಿಲ್ಲ. ದಯವಿಟ್ಟು ರಿಫ್ರೆಶ್ ಬಟನ್ ಒತ್ತಿ.
+            </div>
+          ) : (
+            <div className="divide-y divide-stone-100 border border-stone-200 rounded-xl overflow-hidden bg-stone-50/50">
+              {commits.map((commit, idx) => (
+                <div key={commit.sha || idx} className="p-3 hover:bg-white transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-[11px] font-bold px-2 py-0.5 rounded bg-stone-200 text-stone-800 border border-stone-300">
+                        {commit.shortSha || commit.sha.substring(0, 7)}
+                      </span>
+                      <span className="font-semibold text-stone-900 line-clamp-1">
+                        {commit.message.split('\n')[0]}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3 text-[11px] text-stone-500">
+                      <span>ಕರ್ತೃ: <strong>{commit.author}</strong></span>
+                      {commit.date && (
+                        <span>ದಿನಾಂಕ: {new Date(commit.date).toLocaleDateString('en-GB')} {new Date(commit.date).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <a
+                    href={commit.htmlUrl || `https://github.com/Punithjr/ARYA-PUNITH/commit/${commit.sha}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold text-sky-800 bg-sky-50 hover:bg-sky-100 rounded-lg border border-sky-200 shrink-0 self-start sm:self-center transition-colors"
+                  >
+                    <span>Commit ವಿವರ ವೀಕ್ಷಿಸಿ</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Repository Key Data Links */}
+        <div className="pt-2 border-t border-stone-200 grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+          <a
+            href="https://github.com/Punithjr/ARYA-PUNITH/blob/main/data/employees_store.json"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-2.5 rounded-lg border border-stone-200 bg-white hover:bg-stone-50 flex items-center justify-between group transition-colors"
+          >
+            <div>
+              <span className="font-bold text-stone-800 block">Employees Store Data</span>
+              <span className="font-mono text-[10px] text-stone-500">data/employees_store.json</span>
+            </div>
+            <ExternalLink className="w-3.5 h-3.5 text-stone-400 group-hover:text-stone-700" />
+          </a>
+
+          <a
+            href="https://github.com/Punithjr/ARYA-PUNITH/blob/main/data/gov_memorandum_db.json"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-2.5 rounded-lg border border-stone-200 bg-white hover:bg-stone-50 flex items-center justify-between group transition-colors"
+          >
+            <div>
+              <span className="font-bold text-stone-800 block">Memorandum DB Data</span>
+              <span className="font-mono text-[10px] text-stone-500">data/gov_memorandum_db.json</span>
+            </div>
+            <ExternalLink className="w-3.5 h-3.5 text-stone-400 group-hover:text-stone-700" />
+          </a>
+
+          <a
+            href="https://github.com/Punithjr/ARYA-PUNITH/blob/main/firestore.rules"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-2.5 rounded-lg border border-stone-200 bg-white hover:bg-stone-50 flex items-center justify-between group transition-colors"
+          >
+            <div>
+              <span className="font-bold text-stone-800 block">Security & Rules</span>
+              <span className="font-mono text-[10px] text-stone-500">firestore.rules</span>
+            </div>
+            <ExternalLink className="w-3.5 h-3.5 text-stone-400 group-hover:text-stone-700" />
+          </a>
         </div>
       </div>
     </div>

@@ -154,10 +154,10 @@ export const DeptHeader: React.FC<DeptHeaderProps> = ({
               id="btn-quick-make-letter"
               onClick={() => setActiveTab('generalLetter')}
               className="px-3.5 py-1.5 text-xs font-bold text-[#2b2b2b] bg-[#f59e0b] hover:bg-[#e08e0b] rounded-lg transition-all inline-flex items-center gap-1.5 border-2 border-[#2b2b2b] shadow-[3px_3px_0px_#2b2b2b] hover:shadow-[4px_4px_0px_#2b2b2b] hover:-translate-x-0.5 hover:-translate-y-0.5 cursor-pointer font-kannada"
-              title="ಸಾಮಾನ್ಯ ಪತ್ರ ತಯಾರಿಸಿ (ನೌಕರರ ಸಾಮಾನ್ಯ ಪತ್ರ ಮತ್ತು ಇತರೆ ಸಾಮಾನ್ಯ ಪತ್ರ)"
+              title="ಸಾಮಾನ್ಯ ಪತ್ರ & ಕಛೇರಿ ಆದೇಶ ತಯಾರಿಸಿ (GPF, ಮುಂಗಡ, ರಜೆ, ಇತರೆ)"
             >
               <FileText className="w-3.5 h-3.5 text-[#2b2b2b]" />
-              <span>📄 ಸಾಮಾನ್ಯ ಪತ್ರ ತಯಾರಿಸಿ</span>
+              <span>📄 ಪತ್ರ / ಕಛೇರಿ ಆದೇಶ</span>
             </button>
 
             <button
@@ -418,7 +418,7 @@ export const DeptHeader: React.FC<DeptHeaderProps> = ({
               }`}
             >
               <FileText className="w-3.5 h-3.5 text-[#2b2b2b]" />
-              <span>1. ಸಾಮಾನ್ಯ ಪತ್ರ</span>
+              <span>1. ಪತ್ರ / ಕಛೇರಿ ಆದೇಶ</span>
             </button>
 
             {/* 2. ಜ್ಞಾಪನಾ ಆದೇಶ */}

@@ -4660,6 +4660,172 @@ app.put('/api/memorandum/office-config', (req, res) => {
   }
 });
 
+// 12. GitHub Repository Data & Commits Link (Punithjr/ARYA-PUNITH)
+app.get('/api/github/commits', async (req, res) => {
+  let owner = ((req.query.owner as string) || 'Punithjr').trim();
+  let repo = ((req.query.repo as string) || 'ARYA-PUNITH').trim().replace(/[-_]+$/, '');
+  if (repo.toLowerCase() === 'aryapunith' || repo.toLowerCase() === 'arya-punith') {
+    repo = 'ARYA-PUNITH';
+  }
+  try {
+    const ghRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/commits`, {
+      headers: {
+        'Accept': 'application/vnd.github.v3+json',
+        'User-Agent': 'BEO-Office-Bhadravathi-E-Office'
+      }
+    });
+    if (ghRes.ok) {
+      const data = await ghRes.json();
+      return res.json({
+        success: true,
+        repo: `${owner}/${repo}`,
+        repoUrl: `https://github.com/${owner}/${repo}`,
+        commits: data.map((c: any) => ({
+          sha: c.sha,
+          shortSha: c.sha ? c.sha.substring(0, 7) : '',
+          message: c.commit?.message || '',
+          summary: (c.commit?.message || '').split('\n')[0],
+          description: (c.commit?.message || '').split('\n').slice(1).join('\n').trim(),
+          author: c.commit?.author?.name || c.author?.login || 'Punithjr',
+          committer: c.commit?.committer?.name || 'GitHub',
+          date: c.commit?.author?.date || '',
+          dateFormatted: c.commit?.author?.date ? new Date(c.commit.author.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '',
+          verified: Boolean(c.commit?.verification?.verified),
+          verifiedReason: c.commit?.verification?.verified ? 'Verified' : 'Unverified',
+          htmlUrl: c.html_url || `https://github.com/${owner}/${repo}/commit/${c.sha}`,
+        }))
+      });
+    }
+  } catch (e) {
+    // fallback to cached commits below
+  }
+
+  // Fallback cached commits from Punithjr/ARYA-PUNITH
+  return res.json({
+    success: true,
+    repo: `${owner}/${repo}`,
+    repoUrl: `https://github.com/${owner}/${repo}`,
+    commits: [
+      {
+        sha: "883a0b1e05048ea4d800c047446c92ead5b7626b",
+        shortSha: "883a0b1",
+        message: "Add GitHub Actions workflow for Node.js with Webpack",
+        summary: "Add GitHub Actions workflow for Node.js with Webpack",
+        description: "",
+        author: "Punithjr",
+        committer: "GitHub",
+        date: "2026-10-08T06:56:53Z",
+        dateFormatted: "Oct 8, 2026",
+        verified: true,
+        verifiedReason: "Verified",
+        htmlUrl: "https://github.com/Punithjr/ARYA-PUNITH/commit/883a0b1e05048ea4d800c047446c92ead5b7626b"
+      },
+      {
+        sha: "d23c02838ec39a9aeaad02192a8fda6a3adac256",
+        shortSha: "d23c028",
+        message: "Create SECURITY.md for security policy\n\nAdded a security policy document outlining supported versions and vulnerability reporting.",
+        summary: "Create SECURITY.md for security policy",
+        description: "Added a security policy document outlining supported versions and vulnerability reporting.",
+        author: "Punithjr",
+        committer: "GitHub",
+        date: "2026-10-08T06:56:31Z",
+        dateFormatted: "Oct 8, 2026",
+        verified: true,
+        verifiedReason: "Verified",
+        htmlUrl: "https://github.com/Punithjr/ARYA-PUNITH/commit/d23c02838ec39a9aeaad02192a8fda6a3adac256"
+      },
+      {
+        sha: "5fd33c8be5da1f87b507eb1477041b15cb6d391e",
+        shortSha: "5fd33c8",
+        message: "feat: add PWA support and file processing tools\n\nIntegrate PWA functionality and new image/PDF processing libraries (JSZip, jspdf, pdfjs-dist) to enhance offline capabilities. Update data models to include DDO status and extended file movement tracking.",
+        summary: "feat: add PWA support and file processing tools",
+        description: "Integrate PWA functionality and new image/PDF processing libraries (JSZip, jspdf, pdfjs-dist) to enhance offline capabilities. Update data models to include DDO status and extended file movement tracking.",
+        author: "Punithjr",
+        committer: "Punithjr",
+        date: "2026-10-08T05:48:34Z",
+        dateFormatted: "Oct 8, 2026",
+        verified: false,
+        verifiedReason: "Unverified",
+        htmlUrl: "https://github.com/Punithjr/ARYA-PUNITH/commit/5fd33c8be5da1f87b507eb1477041b15cb6d391e"
+      },
+      {
+        sha: "77a34b4888927158b2ce721a369e4473f3cf6488",
+        shortSha: "77a34b4",
+        message: "feat: add DDO support, persistence, and RTI modules\n\n- Add DDO fields to office configuration\n- Implement persistent storage for employee records\n- Add RTI and user profile database schemas\n- Integrate RTI management and user management UI components",
+        summary: "feat: add DDO support, persistence, and RTI modules",
+        description: "- Add DDO fields to office configuration\n- Implement persistent storage for employee records\n- Add RTI and user profile database schemas\n- Integrate RTI management and user management UI components",
+        author: "Punithjr",
+        committer: "Punithjr",
+        date: "2026-10-01T07:21:21Z",
+        dateFormatted: "Oct 1, 2026",
+        verified: false,
+        verifiedReason: "Unverified",
+        htmlUrl: "https://github.com/Punithjr/ARYA-PUNITH/commit/77a34b4888927158b2ce721a369e4473f3cf6488"
+      },
+      {
+        sha: "8f1e8fb74ab47b05ca44829ec34f89059f7e1fb0",
+        shortSha: "8f1e8fb",
+        message: "feat: initialize project structure and configuration\n\n- Set up project dependencies and lockfile\n- Add Firebase configuration and data models\n- Define Firestore security rules\n- Configure environment variables and ignore patterns\n- Create initial database schema for memorandum orders",
+        summary: "feat: initialize project structure and configuration",
+        description: "- Set up project dependencies and lockfile\n- Add Firebase configuration and data models\n- Define Firestore security rules\n- Configure environment variables and ignore patterns\n- Create initial database schema for memorandum orders",
+        author: "Punithjr",
+        committer: "Punithjr",
+        date: "2026-09-25T10:36:57Z",
+        dateFormatted: "Sep 25, 2026",
+        verified: false,
+        verifiedReason: "Unverified",
+        htmlUrl: "https://github.com/Punithjr/ARYA-PUNITH/commit/8f1e8fb74ab47b05ca44829ec34f89059f7e1fb0"
+      },
+      {
+        sha: "971fb84c6acac491a8f339a3e148d9eef7a144ad",
+        shortSha: "971fb84",
+        message: "Initial commit",
+        summary: "Initial commit",
+        description: "",
+        author: "Punithjr",
+        committer: "Punithjr",
+        date: "2026-09-25T10:36:15Z",
+        dateFormatted: "Sep 25, 2026",
+        verified: false,
+        verifiedReason: "Unverified",
+        htmlUrl: "https://github.com/Punithjr/ARYA-PUNITH/commit/971fb84c6acac491a8f339a3e148d9eef7a144ad"
+      }
+    ]
+  });
+});
+
+app.get('/api/github/repo-info', async (req, res) => {
+  let owner = ((req.query.owner as string) || 'Punithjr').trim();
+  let repo = ((req.query.repo as string) || 'ARYA-PUNITH').trim().replace(/[-_]+$/, '');
+  if (repo.toLowerCase() === 'aryapunith' || repo.toLowerCase() === 'arya-punith') {
+    repo = 'ARYA-PUNITH';
+  }
+  try {
+    const ghRes = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
+      headers: {
+        'Accept': 'application/vnd.github.v3+json',
+        'User-Agent': 'BEO-Office-Bhadravathi-E-Office'
+      }
+    });
+    if (ghRes.ok) {
+      const data = await ghRes.json();
+      return res.json({ success: true, repoInfo: data });
+    }
+  } catch (e) {}
+
+  return res.json({
+    success: true,
+    repoInfo: {
+      name: repo,
+      full_name: `${owner}/${repo}`,
+      html_url: `https://github.com/${owner}/${repo}`,
+      description: "BEO Office Bhadravathi E-Office & Administration Management System",
+      default_branch: "main",
+      visibility: "public"
+    }
+  });
+});
+
 // 12. Unified Search
 app.get('/api/memorandum/search', (req, res) => {
   try {

@@ -21,8 +21,8 @@ import { EducationLetter, MasterDocketFile } from '../src/types';
 export const CENTRALIZED_BEO_HEADER = {
   state: 'ಕರ್ನಾಟಕ ಸರ್ಕಾರ',
   department: 'ಶಾಲಾ ಶಿಕ್ಷಣ ಮತ್ತು ಸಾಕ್ಷರತಾ ಇಲಾಖೆ',
-  office: 'ಕ್ಷೇತ್ರ ಶಿಕ್ಷಣಾಧಿಕಾರಿಗಳ ಕಛೇರಿ, ಭದ್ರಾವತಿ',
-  location: 'ಭದ್ರಾವತಿ, ಶಿವಮೊಗ್ಗ ಜಿಲ್ಲೆ.',
+  office: 'ಕ್ಷೇತ್ರ ಶಿಕ್ಷಣಾಧಿಕಾರಿಗಳ ಕಛೇರಿ, ಭದ್ರಾವತಿ ತಾಲ್ಲೂಕು',
+  location: 'ಬಿ.ಹೆಚ್. ರಸ್ತೆ, ಹಳೇನಗರ, ಭದ್ರಾವತಿ, ಶಿವಮೊಗ್ಗ ಜಿಲ್ಲೆ – 577301',
 };
 
 export interface LetterPrintSettings {
@@ -321,32 +321,29 @@ export async function generateLetterDocxBuffer(
         }),
       ],
     }),
-    // Generous blank spacing for physical signature
     new Paragraph({
       alignment: AlignmentType.RIGHT,
       spacing: { before: 360, after: 40 },
       children: [
         new TextRun({
-          text: letter.showCaseworkerSignature && letter.caseworkerName ? `(${letter.caseworkerName})` : '',
+          text: 'ಕ್ಷೇತ್ರ ಶಿಕ್ಷಣಾಧಿಕಾರಿಗಳು',
           bold: true,
           font: headerFont,
           size: fontSizeHalfPt,
         }),
       ],
     }),
-    ...(letter.showCaseworkerSignature && letter.caseworkerDesignation ? [
-      new Paragraph({
-        alignment: AlignmentType.RIGHT,
-        spacing: { after: 160 },
-        children: [
-          new TextRun({
-            text: letter.caseworkerDesignation,
-            font: headerFont,
-            size: fontSizeHalfPt - 2,
-          }),
-        ],
-      }),
-    ] : [])
+    new Paragraph({
+      alignment: AlignmentType.RIGHT,
+      spacing: { after: 160 },
+      children: [
+        new TextRun({
+          text: 'ಭದ್ರಾವತಿ ತಾಲ್ಲೂಕು',
+          font: headerFont,
+          size: fontSizeHalfPt - 2,
+        }),
+      ],
+    })
   );
 
   // 9. Endorsements / Copies (ಪ್ರತಿ ರವಾನೆ)

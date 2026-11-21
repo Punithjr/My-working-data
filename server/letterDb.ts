@@ -1417,7 +1417,7 @@ export async function generateOfficeLetterDocx(letter: DbGeneratedLetter): Promi
       alignment: AlignmentType.CENTER,
       children: [
         new TextRun({
-          text: 'ಕ್ಷೇತ್ರ ಶಿಕ್ಷಣಾಧಿಕಾರಿಗಳ ಕಛೇರಿ, ಭದ್ರಾವತಿ',
+          text: 'ಕ್ಷೇತ್ರ ಶಿಕ್ಷಣಾಧಿಕಾರಿಗಳ ಕಛೇರಿ, ಭದ್ರಾವತಿ ತಾಲ್ಲೂಕು',
           bold: true,
           size: 22, // 11pt
           color: '1E293B',
@@ -1429,7 +1429,7 @@ export async function generateOfficeLetterDocx(letter: DbGeneratedLetter): Promi
       alignment: AlignmentType.CENTER,
       children: [
         new TextRun({
-          text: 'ಬಿ.ಹೆಚ್. ರಸ್ತೆ, ಹಳೇನಗರ, ಭದ್ರಾವತಿ, ಶಿವಮೊಗ್ಗ ಜಿಲ್ಲೆ - 577301',
+          text: 'ಬಿ.ಹೆಚ್. ರಸ್ತೆ, ಹಳೇನಗರ, ಭದ್ರಾವತಿ, ಶಿವಮೊಗ್ಗ ಜಿಲ್ಲೆ – 577301',
           bold: true,
           size: 20, // 10pt
           color: '334155',
@@ -1570,8 +1570,8 @@ export async function generateOfficeLetterDocx(letter: DbGeneratedLetter): Promi
       alignment: AlignmentType.RIGHT,
       children: [
         new TextRun({ text: 'ತಮ್ಮ ನಂಬುಗೆಯ,\n\n\n\n', size: 20 }),
-        new TextRun({ text: (letter as any).showCaseworkerSignature && (letter as any).caseworkerName ? `(${(letter as any).caseworkerName})\n` : '\n', bold: true, size: 20 }),
-        new TextRun({ text: (letter as any).showCaseworkerSignature && (letter as any).caseworkerDesignation ? `${(letter as any).caseworkerDesignation}\n` : '', size: 18 }),
+        new TextRun({ text: 'ಕ್ಷೇತ್ರ ಶಿಕ್ಷಣಾಧಿಕಾರಿಗಳು\n', bold: true, size: 20 }),
+        new TextRun({ text: 'ಭದ್ರಾವತಿ ತಾಲ್ಲೂಕು\n', size: 18 }),
       ],
       spacing: { before: 300, after: 240 },
     })

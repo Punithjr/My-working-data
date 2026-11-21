@@ -53,6 +53,7 @@ import {
 import { MobileAppInstallSection } from './components/MobileAppInstallSection';
 import { GovtTopHeader } from './components/GovtTopHeader';
 import { GovtSidebar } from './components/GovtSidebar';
+import { GitHubCommitsModal } from './components/GitHubCommitsModal';
 import { Check, AlertCircle, Sparkles, Users, ArrowLeft, Camera, BarChart3, FileSpreadsheet, Inbox } from 'lucide-react';
 
 const MODULE_TITLES_KANNADA: Record<string, string> = {
@@ -149,7 +150,10 @@ export default function App() {
 
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [isAiChatOpen, setIsAiChatOpen] = useState(false);
+  const [isGitHubCommitsModalOpen, setIsGitHubCommitsModalOpen] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [lang, setLang] = useState<'kn' | 'en'>('kn');
   const [userSlotsCount, setUserSlotsCount] = useState<number>(2);
   const [selectedUserFilter, setSelectedUserFilter] = useState<string>('all');
   const [allRegisteredUsers, setAllRegisteredUsers] = useState<AdminAuthUser[]>([]);
@@ -1215,11 +1219,14 @@ export default function App() {
         files={files}
         letters={letters}
         employees={employees}
+        onOpenGitHubCommits={() => setIsGitHubCommitsModalOpen(true)}
+        lang={lang}
+        onToggleLang={() => setLang(l => l === 'kn' ? 'en' : 'kn')}
       />
 
-      {/* Main Two-Column Body: Fixed Left Sidebar (~220px) + Main Content */}
+      {/* Main Two-Column Body: Collapsible Left Sidebar + Main Content */}
       <div className="flex-1 flex flex-row w-full min-h-[calc(100vh-72px)]">
-        {/* 2. Left Sidebar (Fixed, ~220px, Dark Navy, scrollable) */}
+        {/* 2. Left Sidebar (Collapsible, Dark Navy, scrollable) */}
         <GovtSidebar
           activeTab={activeTab}
           onNavigate={(tab, extra) => {
@@ -1236,6 +1243,10 @@ export default function App() {
           files={files}
           isMobileOpen={isMobileSidebarOpen}
           onCloseMobile={() => setIsMobileSidebarOpen(false)}
+          onLogout={handleLogout}
+          isCollapsed={isSidebarCollapsed}
+          onToggleCollapse={() => setIsSidebarCollapsed(prev => !prev)}
+          lang={lang}
         />
 
         {/* Right Main Content Area */}
@@ -1877,15 +1888,24 @@ export default function App() {
       {/* Footer */}
       <footer className="bg-white border-t border-stone-200/90 py-6 text-center text-xs text-stone-500 mt-auto no-print">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 font-kannada">
             <span className="font-semibold text-stone-800">
-              Education Department Letters & Files Management System
+              ಕರ್ನಾಟಕ ಸರ್ಕಾರ • ಶಾಲಾ ಶಿಕ್ಷಣ ಮತ್ತು ಸಾಕ್ಷರತಾ ಇಲಾಖೆ
             </span>
             <span>•</span>
-            <span>Directorate of School & Higher Education</span>
+            <span className="font-bold text-stone-900">ಕ್ಷೇತ್ರ ಶಿಕ್ಷಣಾಧಿಕಾರಿಗಳ ಕಛೇರಿ, ಭದ್ರಾವತಿ ತಾಲ್ಲೂಕು</span>
           </div>
-          <div className="text-[11px] text-stone-400">
-            e-Office Compliant • Master Docket Auditing • Automated Statutory Circular Generation
+          <div className="text-[11px] text-stone-500 font-kannada flex items-center gap-2">
+            <span>ಬಿ.ಹೆಚ್. ರಸ್ತೆ, ಹಳೇನಗರ, ಭದ್ರಾವತಿ, ಶಿವಮೊಗ್ಗ ಜಿಲ್ಲೆ – 577301</span>
+            <span>•</span>
+            <button 
+              type="button"
+              onClick={() => setIsGitHubCommitsModalOpen(true)}
+              className="text-sky-700 hover:text-sky-900 underline flex items-center gap-1 font-mono font-bold cursor-pointer"
+              title="GitHub Commits & Repository Data ವೀಕ್ಷಿಸಿ"
+            >
+              GitHub: Punithjr/ARYA-PUNITH (Commits Stream)
+            </button>
           </div>
         </div>
       </footer>
@@ -2001,6 +2021,13 @@ export default function App() {
         onCreateFile={handleCreateDocketFile}
         sections={sections}
         onShowToast={showToast}
+      />
+
+      {/* MODAL 11: GitHub Commits & Version History Stream */}
+      <GitHubCommitsModal
+        isOpen={isGitHubCommitsModalOpen}
+        onClose={() => setIsGitHubCommitsModalOpen(false)}
+        onOpenSyncSettings={() => setActiveTab('settings')}
       />
 
       {/* FLOATING ACTION BUTTONS: FAST PDF SCANNER, MOBILE NEW INWARD & AI CHATBOT TRIGGER */}

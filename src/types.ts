@@ -328,6 +328,8 @@ export interface Employee {
   isDdo?: boolean; // ಕಚೇರಿಯ ಡಿಡಿಓ (ಆಹರಣ ಮತ್ತು ವಿತರಣಾ ಅಧಿಕಾರಿ) ಹೌದೇ?
   bankAccountNo?: string; // ಬ್ಯಾಂಕ್ ಖಾತೆ ಸಂಖ್ಯೆ
   bankIfsc?: string; // ಬ್ಯಾಂಕ್ IFSC ಕೋಡ್
+  gpfNumber?: string; // ಜಿ.ಪಿ.ಎಫ್ (GPF) ಖಾತೆ ಸಂಖ್ಯೆ
+  gpfCreditBalance?: number; // ಜಿ.ಪಿ.ಎಫ್ ಒಟ್ಟು ಉಳಿಕೆ ಮೊತ್ತ (₹)
   panNumber?: string; // ಪ್ಯಾನ್ ಕಾರ್ಡ್ ಸಂಖ್ಯೆ
   aadhaarNumber?: string; // ಆಧಾರ್ ಸಂಖ್ಯೆ
   casteCategory?: string; // ಜಾತಿ / ಪ್ರವರ್ಗ (GM, SC, ST, Cat-1, 2A, 2B, 3A, 3B)
@@ -359,10 +361,11 @@ export interface OrderTypeConfig {
   id: string;
   nameKannada: string;
   nameEnglish: string;
-  category: 'leave' | 'increment' | 'advancement';
+  category: 'leave' | 'increment' | 'advancement' | 'office_order';
   description: string;
   isActive: boolean;
   defaultRuleId?: string;
+  minServiceYears?: number;
 }
 
 export interface PayRule {
@@ -434,6 +437,21 @@ export interface MemorandumOrder {
     reason?: string;
     balanceBefore?: number;
     balanceAfter?: number;
+  };
+  officeOrderDetails?: {
+    orderCategory: 'gpf_advance' | 'gpf_partial' | 'el_encashment' | 'annual_increment' | 'incharge' | 'deputation' | 'general';
+    gpfAccountNo?: string;
+    gpfAdvanceAmount?: number;
+    installmentCount?: number;
+    installmentAmount?: number;
+    recoveryStartMonth?: string;
+    gpfCreditBalance?: number;
+    gpfWithdrawalAmount?: number;
+    inchargePost?: string;
+    inchargeAllowancePercent?: number;
+    deputationSchool?: string;
+    deputationPeriod?: string;
+    purpose?: string;
   };
   signatoryName: string;
   signatoryDesignation: string;
@@ -659,6 +677,7 @@ export interface LetterDashboardStatistics {
 export type GeneralLetterCategory = 'employee' | 'other';
 
 export type GeneralLetterOfficialType =
+  | 'ಕಛೇರಿ ಆದೇಶ'
   | 'ಸಾಮಾನ್ಯ ಅಧಿಕೃತ ಪತ್ರ'
   | 'ಮನವಿ ಪತ್ರ'
   | 'ಮಾಹಿತಿ ಕೋರುವ ಪತ್ರ'
@@ -1003,6 +1022,18 @@ export interface PensionDocumentsChecklist {
   aadharBankPassbook: boolean; // ಆಧಾರ್ & ಬ್ಯಾಂಕ್ ಪಾಸ್‌ಬುಕ್ ಪ್ರತಿ
 }
 
+export interface PensionProposalDocumentItem {
+  id: string; // doc-1 to doc-19
+  number: number;
+  nameKannada: string;
+  nameEnglish: string;
+  status: 'available' | 'pending' | 'not_applicable';
+  remarks?: string;
+  fileName?: string;
+  fileSize?: string;
+  uploadedAt?: string;
+}
+
 export type PensionCaseStatus = 
   | 'ದಾಖಲಾತಿ ಹಂತದಲ್ಲಿದೆ (Drafting)'
   | 'ಸೇವಾ ಪರಿಶೀಲನೆ ಪೂರ್ಣ (Service Verified)'
@@ -1118,6 +1149,14 @@ export interface PensionCaseRecord {
   // Calculations & Checklist
   calculation: PensionCalculationResult;
   checklist: PensionDocumentsChecklist;
+  statutory19Checklist?: PensionProposalDocumentItem[];
+  auditHistory?: {
+    id: string;
+    timestamp: string;
+    action: string;
+    details: string;
+    performedBy: string;
+  }[];
   status: PensionCaseStatus;
   movementHistory: FileMovementRecord[];
   remarks?: string;
@@ -1155,7 +1194,9 @@ export type PensionLetterFormatType =
   | 'el_encashment_order' // ಗಳಿಕೆ ರಜೆ ನಗದೀಕರಣ ಮಂಜೂರಾತಿ ಆದೇಶ (EL Encashment Sanction Order)
   | 'service_verification_cert' // ಸೇವಾ ಪರಿಶೀಲನಾ ಪ್ರಮಾಣಪತ್ರ (Service Verification Certificate)
   | 'ag_forwarding' // ಮಹಾಲೆಕ್ಕಪಾಲರಿಗೆ (AG Karnataka) ಪ್ರಸ್ತಾವನಾ ರವಾನೆ ಪತ್ರ
-  | 'no_dues_cert'; // ಬಾಕಿ ರಹಿತ ಪ್ರಮಾಣಪತ್ರ (No Dues & Vigilance Clearance Certificate)
+  | 'no_dues_cert' // ಬಾಕಿ ರಹಿತ ಪ್ರಮಾಣಪತ್ರ (No Dues & Vigilance Clearance Certificate)
+  | 'checklist_19' // 19 ಅಂಶಗಳ ಶಾಸನಬದ್ಧ ಪರಿಶೀಲನಾ ಪಟ್ಟಿ (19-Point Document Checklist)
+  | 'dossier'; // ಸಮಗ್ರ ನಿವೃತ್ತಿ ವೇತನ ಪ್ರಸ್ತಾವನಾ ಸಂಪುಟ (Comprehensive Pension Dossier)
 
 // ==================== RTI (RIGHT TO INFORMATION ACT) TYPES ====================
 export type RtiStatus = 

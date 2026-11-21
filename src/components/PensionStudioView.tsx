@@ -60,6 +60,7 @@ import {
   PensionSchoolServiceRecord,
   PensionYearlyLeaveRecord,
   PensionAttachedWorksheet,
+  PensionProposalDocumentItem,
   Employee, 
   AdminAuthUser, 
   MasterDocketFile,
@@ -79,6 +80,15 @@ import {
   generatePensionEstimateSlipHtml,
   QuickPensionEstimateResult
 } from '../utils/pensionCalculator';
+import {
+  STATUTORY_19_DOCUMENTS_META,
+  getInitial19Checklist,
+  generateChecklistDocumentHtml,
+  generateCompletePensionDossierHtml,
+  exportPensionCasesToExcel,
+  exportChecklistToExcel,
+  exportHtmlToWordDoc
+} from '../utils/pension19Documents';
 import { calculateYearsServed } from './EmployeeRosterView';
 import { UnifiedPensionSummaryCard } from './UnifiedPensionSummaryCard';
 
@@ -461,8 +471,14 @@ export const PensionStudioView: React.FC<PensionStudioViewProps> = ({
   onAttachToDocketFile,
   showToast
 }) => {
-  // Navigation tabs within Pension Module: includes dedicated calculator, cases, and calculations tabs
-  const [activeSubTab, setActiveSubTab] = useState<'cases' | 'calculator' | 'input' | 'calculations' | 'letters' | 'checklist' | 'labels'>('cases');
+  // Navigation tabs within Pension Module: includes dedicated calculator, cases, calculations, letters, checklist, reports, and labels
+  const [activeSubTab, setActiveSubTab] = useState<'cases' | 'calculator' | 'input' | 'calculations' | 'letters' | 'checklist' | 'reports' | 'labels'>('cases');
+  
+  // Reports Subtab Filter State
+  const [reportFilterType, setReportFilterType] = useState<'all' | 'year' | 'pending_docs' | 'completed'>('all');
+  const [reportSelectedYear, setReportSelectedYear] = useState<string>('all');
+  const [checklistFilter, setChecklistFilter] = useState<'all' | 'available' | 'pending' | 'not_applicable'>('all');
+  const [selected19DocIndex, setSelected19DocIndex] = useState<number>(1);
 
   // ---------------------------------------------------------------------------
   // PENSION CALCULATOR TOOL STATE (Estimates total benefits from Years of Service & Basic Pay)
@@ -1227,6 +1243,128 @@ export const PensionStudioView: React.FC<PensionStudioViewProps> = ({
     showToast('ದಾಖಲಾತಿ ಪರಿಶೀಲನಾ ಪಟ್ಟಿ ನವೀಕರಿಸಲಾಗಿದೆ.');
   };
 
+  // ---------------------------------------------------------------------------
+  // 19 STATUTORY PENSION PROPOSAL DOCUMENTS CHECKLIST HANDLERS
+  // ---------------------------------------------------------------------------
+  const handleUpdate19ChecklistStatus = (
+    caseId: string,
+    docNumber: number,
+    newStatus: 'available' | 'pending' | 'not_applicable'
+  ) => {
+    setPensionCases(prev => prev.map(c => {
+      if (c.id === caseId) {
+        const currentList = c.statutory19Checklist && c.statutory19Checklist.length === 19
+          ? c.statutory19Checklist
+          : getInitial19Checklist();
+
+        const updatedList = currentList.map(item =>
+          item.number === docNumber ? { ...item, status: newStatus } : item
+        );
+        const updated = {
+          ...c,
+          statutory19Checklist: updatedList,
+          lastUpdated: new Date().toISOString().split('T')[0]
+        };
+        if (selectedCase?.id === caseId) setSelectedCase(updated);
+        fetch(`/api/pension-cases/${caseId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updated)
+        }).catch(() => {});
+        return updated;
+      }
+      return c;
+    }));
+    showToast(`ದಾಖಲೆ #${docNumber} ರ ಸ್ಥಿತಿ ನವೀಕರಿಸಲಾಗಿದೆ.`);
+  };
+
+  const handleUpdate19ChecklistRemarks = (
+    caseId: string,
+    docNumber: number,
+    newRemarks: string
+  ) => {
+    setPensionCases(prev => prev.map(c => {
+      if (c.id === caseId) {
+        const currentList = c.statutory19Checklist && c.statutory19Checklist.length === 19
+          ? c.statutory19Checklist
+          : getInitial19Checklist();
+
+        const updatedList = currentList.map(item =>
+          item.number === docNumber ? { ...item, remarks: newRemarks } : item
+        );
+        const updated = {
+          ...c,
+          statutory19Checklist: updatedList,
+          lastUpdated: new Date().toISOString().split('T')[0]
+        };
+        if (selectedCase?.id === caseId) setSelectedCase(updated);
+        return updated;
+      }
+      return c;
+    }));
+  };
+
+  const handleUpdate19ChecklistFile = (
+    caseId: string,
+    docNumber: number,
+    fileName: string
+  ) => {
+    setPensionCases(prev => prev.map(c => {
+      if (c.id === caseId) {
+        const currentList = c.statutory19Checklist && c.statutory19Checklist.length === 19
+          ? c.statutory19Checklist
+          : getInitial19Checklist();
+
+        const updatedList = currentList.map(item =>
+          item.number === docNumber ? { ...item, fileName, status: (fileName ? 'available' : item.status) as any } : item
+        );
+        const updated = {
+          ...c,
+          statutory19Checklist: updatedList,
+          lastUpdated: new Date().toISOString().split('T')[0]
+        };
+        if (selectedCase?.id === caseId) setSelectedCase(updated);
+        fetch(`/api/pension-cases/${caseId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updated)
+        }).catch(() => {});
+        return updated;
+      }
+      return c;
+    }));
+    showToast(`ದಾಖಲೆ #${docNumber} ಕಡತ ಲಗತ್ತಿಸಲಾಗಿದೆ.`);
+  };
+
+  const handleMarkAll19Available = (caseId: string) => {
+    setPensionCases(prev => prev.map(c => {
+      if (c.id === caseId) {
+        const currentList = c.statutory19Checklist && c.statutory19Checklist.length === 19
+          ? c.statutory19Checklist
+          : getInitial19Checklist();
+
+        const updatedList = currentList.map(item => ({
+          ...item,
+          status: 'available' as const
+        }));
+        const updated = {
+          ...c,
+          statutory19Checklist: updatedList,
+          lastUpdated: new Date().toISOString().split('T')[0]
+        };
+        if (selectedCase?.id === caseId) setSelectedCase(updated);
+        fetch(`/api/pension-cases/${caseId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updated)
+        }).catch(() => {});
+        return updated;
+      }
+      return c;
+    }));
+    showToast('ಎಲ್ಲಾ 19 ದಾಖಲೆಗಳನ್ನು ಲಭ್ಯವೆಂದು ಗುರುತಿಸಲಾಗಿದೆ.');
+  };
+
   // Update Status of Case
   const handleUpdateStatus = (caseId: string, newStatus: PensionCaseStatus) => {
     setPensionCases(prev => prev.map(c => {
@@ -1290,7 +1428,9 @@ export const PensionStudioView: React.FC<PensionStudioViewProps> = ({
       non_reemployment_undertaking: 'ಮರು ನೌಕರಿಯಿಲ್ಲ ದೃಢೀಕರಣ & ಅಗತ್ಯವಾದ ಘೋಷಣೆ',
       pension_sanction_summary: 'ನಿವೃತ್ತಿ ವೇತನ ಮಂಜೂರಾತಿ ಸಾರಾಂಶ ಪಟ್ಟಿ',
       retirement_advance_form: 'ನಿವೃತ್ತಿ ದಿನಾಂಕಕ್ಕಿಂತ 1 ವರ್ಷ ಮುಂಚಿತವಾಗಿ ಪಡೆಯಬೇಕಾದ ವಿವರ (Bio-data & 1/3 CVP)',
-      non_qualifying_service: 'ವಿಭಾಗ-III & IV ಅನರ್ಹತಾ ಸೇವೆ & ಪರಿಶೋಧನೆ'
+      non_qualifying_service: 'ವಿಭಾಗ-III & IV ಅನರ್ಹತಾ ಸೇವೆ & ಪರಿಶೋಧನೆ',
+      checklist_19: '19 ಶಾಸನಬದ್ಧ ದಾಖಲಾತಿಗಳ ಪರಿಶೀಲನಾ ಪಟ್ಟಿ (Checklist)',
+      dossier: 'ಸಮಗ್ರ ಪಿಂಚಣಿ ಪ್ರಸ್ತಾವನಾ ಡಾಕ್ಯುಮೆಂಟ್ ಸಂಪುಟ (Dossier)'
     };
 
     const htmlContent = renderPensionFormatHtml(selectedFormat, selectedCase, DEFAULT_PENSION_OFFICE_CONFIG);
@@ -1323,16 +1463,36 @@ export const PensionStudioView: React.FC<PensionStudioViewProps> = ({
     }
   };
 
+  // Memoized current active document HTML (supports official formats, 19 checklist, and unified complete dossier)
+  const currentRenderedHtml = useMemo(() => {
+    if (!selectedCase) return '';
+    if (selectedFormat === 'checklist_19') {
+      return generateChecklistDocumentHtml(selectedCase, DEFAULT_PENSION_OFFICE_CONFIG);
+    }
+    if (selectedFormat === 'dossier') {
+      return generateCompletePensionDossierHtml(selectedCase, DEFAULT_PENSION_OFFICE_CONFIG);
+    }
+    return renderPensionFormatHtml(selectedFormat, selectedCase, DEFAULT_PENSION_OFFICE_CONFIG);
+  }, [selectedFormat, selectedCase]);
+
   // Print Active Letter
   const handlePrintDocument = () => {
     window.print();
   };
 
+  // Download Current Letter / Dossier as Word (.doc)
+  const handleDownloadWordDoc = () => {
+    if (!selectedCase) return;
+    const cleanFile = selectedCase.fileNumber.replace(/[/\\?%*:|"<>]/g, '_');
+    const docName = `Pension_${selectedFormat}_${selectedCase.kgidNumber}_${cleanFile}.doc`;
+    exportHtmlToWordDoc(currentRenderedHtml, docName);
+    showToast(`Word (.doc) ಕಡತ ಡೌನ್‌ಲೋಡ್ ಆರಂಭವಾಗಿದೆ: ${docName}`);
+  };
+
   // Copy HTML to Clipboard
   const handleCopyHtml = () => {
     if (!selectedCase) return;
-    const html = renderPensionFormatHtml(selectedFormat, selectedCase, DEFAULT_PENSION_OFFICE_CONFIG);
-    navigator.clipboard.writeText(html);
+    navigator.clipboard.writeText(currentRenderedHtml);
     showToast('ದಾಖಲಾತಿಯ HTML ಪಠ್ಯವನ್ನು ಕ್ಲಿಪ್‌ಬೋರ್ಡ್‌ಗೆ ನಕಲಿಸಲಾಗಿದೆ.');
   };
 
@@ -1899,7 +2059,19 @@ export const PensionStudioView: React.FC<PensionStudioViewProps> = ({
             }`}
           >
             <CheckSquare className="w-4 h-4 text-indigo-600" />
-            <span>6. ದಾಖಲೆಗಳ ಪರಿಶೀಲನಾ ಪಟ್ಟಿ</span>
+            <span>6. 19 ದಾಖಲೆಗಳ ಪರಿಶೀಲನಾ ಪಟ್ಟಿ</span>
+          </button>
+
+          <button
+            onClick={() => setActiveSubTab('reports')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border-2 border-stone-800 ${
+              activeSubTab === 'reports'
+                ? 'bg-stone-900 text-amber-300 shadow-[3px_3px_0px_#f59e0b]'
+                : 'bg-white text-stone-800 hover:bg-stone-100 shadow-[2px_2px_0px_#2b2b2b]'
+            }`}
+          >
+            <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+            <span>7. ಪಿಂಚಣಿ ವರದಿಗಳು (Reports)</span>
           </button>
 
           <button
@@ -1911,7 +2083,7 @@ export const PensionStudioView: React.FC<PensionStudioViewProps> = ({
             }`}
           >
             <Tag className="w-4 h-4 text-purple-600" />
-            <span>7. ಕಡತ ಅಂಟಿಸುವ ಲೇಬಲ್‌ಗಳು (Docket Labels)</span>
+            <span>8. ಕಡತ ಅಂಟಿಸುವ ಲೇಬಲ್‌ಗಳು (Docket Labels)</span>
           </button>
         </div>
 

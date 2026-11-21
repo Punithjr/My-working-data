@@ -774,16 +774,11 @@ export const LetterViewerModal: React.FC<LetterViewerModalProps> = ({
               <div className="pt-6 flex justify-end">
                 <div className="text-center min-w-[240px] space-y-1">
                   <p className="text-xs text-stone-600 mb-6">ತಮ್ಮ ನಂಬುಗೆಯ, ಸಹಿ/-</p>
-                  <p className="font-bold text-xs text-stone-950">
-                    ({(letter as any).signatoryName || (letter.direction === 'outward' && letter.senderName ? letter.senderName : ddoOfficer.name || 'ಸುರೇಶ್ ಕೆ.ಸಿ.')})
+                  <p className="font-bold text-sm text-stone-950">
+                    ಕ್ಷೇತ್ರ ಶಿಕ್ಷಣಾಧಿಕಾರಿಗಳು
                   </p>
-                  <p className="font-bold text-[11px] text-stone-900">
-                    {isRtiLetter
-                      ? 'ಕ್ಷೇತ್ರ ಶಿಕ್ಷಣಾಧಿಕಾರಿಗಳು (BEO) & ಡಿಡಿಓ'
-                      : ((letter as any).signatoryDesignation || (letter.direction === 'outward' && letter.senderDesignation ? letter.senderDesignation : ddoOfficer.designation))}
-                  </p>
-                  <p className="text-[11px] text-stone-800">
-                    {isRtiLetter ? 'ಕ್ಷೇತ್ರ ಶಿಕ್ಷಣಾಧಿಕಾರಿಗಳ ಕಛೇರಿ, ಭದ್ರಾವತಿ ತಾಲ್ಲೂಕು' : ((letter as any).signatoryOffice || ddoOfficer.office)}
+                  <p className="font-bold text-xs text-stone-800">
+                    ಭದ್ರಾವತಿ ತಾಲ್ಲೂಕು
                   </p>
                 </div>
               </div>

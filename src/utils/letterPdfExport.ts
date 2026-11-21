@@ -33,12 +33,12 @@ export function generateLetterPdf(letter: EducationLetter): void {
   doc.text('GOVERNMENT OF KARNATAKA • DEPARTMENT OF SCHOOL EDUCATION & LITERACY', pageWidth / 2, 7.5, { align: 'center' });
 
   doc.setFontSize(11.5);
-  doc.text('OFFICE OF THE BLOCK EDUCATION OFFICER (BEO), BHADRAVATHI', pageWidth / 2, 14, { align: 'center' });
+  doc.text('OFFICE OF THE BLOCK EDUCATION OFFICER (BEO), BHADRAVATHI TALUK', pageWidth / 2, 14, { align: 'center' });
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7.5);
   doc.setTextColor(226, 232, 240);
-  doc.text('Bhadra Colony, Old Town, Bhadravathi - 577301 | Email: beo.bhadravathi@karnataka.gov.in', pageWidth / 2, 19.5, { align: 'center' });
+  doc.text('B.H. Road, Halenagar, Bhadravathi, Shivamogga Dist – 577301 | Email: beo.bhadravathi@karnataka.gov.in', pageWidth / 2, 19.5, { align: 'center' });
 
   let y = 30;
 
@@ -259,13 +259,12 @@ export function generateLetterPdf(letter: EducationLetter): void {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(9);
   doc.setTextColor(15, 23, 42);
-  const signatoryName = l.signatoryName || letter.senderName || 'Block Education Officer';
-  doc.text(signatoryName, sigX + 4, y + 10.5);
+  doc.text('Block Education Officer', sigX + 4, y + 10.5);
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
   doc.setTextColor(71, 85, 105);
-  doc.text(l.signatoryDesignation || letter.senderDesignation || 'Block Education Officer', sigX + 4, y + 15);
+  doc.text('Bhadravathi Taluk', sigX + 4, y + 15);
   doc.text('Office of the BEO, Bhadravathi', sigX + 4, y + 19.5);
 
   // Endorsement copies on left side

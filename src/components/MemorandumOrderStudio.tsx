@@ -114,6 +114,35 @@ export const MemorandumOrderStudio: React.FC<MemorandumOrderStudioProps> = ({
   const [officialRemarks, setOfficialRemarks] = useState<string>('');
   const [customOrderNo, setCustomOrderNo] = useState<string>('');
 
+  // Office Order Category Tab & Specific Parameters
+  const [orderCategoryTab, setOrderCategoryTab] = useState<'office_orders' | 'increments' | 'leaves'>('office_orders');
+  const [gpfAccountNo, setGpfAccountNo] = useState<string>('');
+  const [gpfAdvanceAmount, setGpfAdvanceAmount] = useState<number>(50000);
+  const [installmentCount, setInstallmentCount] = useState<number>(24);
+  const [installmentAmount, setInstallmentAmount] = useState<number>(() => Math.round(50000 / 24));
+  const [recoveryStartMonth, setRecoveryStartMonth] = useState<string>('ಮುಂದಿನ ಮಾಹೆಯ ವೇತನದಿಂದ');
+  const [gpfCreditBalance, setGpfCreditBalance] = useState<number>(350000);
+  const [gpfWithdrawalAmount, setGpfWithdrawalAmount] = useState<number>(150000);
+  const [inchargePost, setInchargePost] = useState<string>('ಮುಖ್ಯೋಪಾಧ್ಯಾಯರು');
+  const [inchargeAllowancePercent, setInchargeAllowancePercent] = useState<number>(7.5);
+  const [deputationSchool, setDeputationSchool] = useState<string>('ಸರ್ಕಾರಿ ಪ್ರೌಢಶಾಲೆ, ಭದ್ರಾವತಿ');
+  const [deputationPeriod, setDeputationPeriod] = useState<string>('ಆಡಳಿತಾತ್ಮಕ ಹಿತದೃಷ್ಟಿಯಿಂದ ಮುಂದಿನ ಆದೇಶದವರೆಗೆ');
+  const [orderPurpose, setOrderPurpose] = useState<string>('ವೈದ್ಯಕೀಯ ಚಿಕಿತ್ಸಾ ವೆಚ್ಚ');
+
+  // Auto sync employee GPF details
+  useEffect(() => {
+    if (employee) {
+      if (employee.gpfNumber) setGpfAccountNo(employee.gpfNumber);
+      else if (employee.kgidNumber) setGpfAccountNo(employee.kgidNumber);
+      if (employee.gpfCreditBalance) setGpfCreditBalance(employee.gpfCreditBalance);
+    }
+  }, [employee]);
+
+  // Auto calculate monthly installment
+  useEffect(() => {
+    setInstallmentAmount(Math.round(gpfAdvanceAmount / (installmentCount || 1)));
+  }, [gpfAdvanceAmount, installmentCount]);
+
   // Calculation Engine State
   const [calculationResult, setCalculationResult] = useState<{
     eligible: boolean;
@@ -324,6 +353,15 @@ export const MemorandumOrderStudio: React.FC<MemorandumOrderStudioProps> = ({
         }
       } else if (isLeave) {
         reason = 'ನಿಯಮಾನುಸಾರ ರಜೆ ಮಂಜೂರಾತಿಗೆ ಅರ್ಹತೆ ಹೊಂದಿದ್ದಾರೆ.';
+      } else if (selectedOrderType.includes('GPF ಮುಂಗಡ')) {
+        eligible = true;
+        reason = `ಕರ್ನಾಟಕ ಸಾಮಾನ್ಯ ಭವಿಷ್ಯ ನಿಧಿ ನಿಯಮಾವಳಿಗಳು (KGPF Rules) ನಿಯಮ 10 ಮತ್ತು 12 ರನ್ವಯ ₹${gpfAdvanceAmount.toLocaleString('en-IN')}/- ಗಳ ತಾತ್ಕಾಲಿಕ ಮುಂಗಡ ಮಂಜೂರಾತಿಗೆ ಅರ್ಹತೆ ಹೊಂದಿದ್ದಾರೆ (${installmentCount} ಕಂತುಗಳಲ್ಲಿ ಮರುಪಾವತಿ).`;
+      } else if (selectedOrderType.includes('ಭಾಗಶಃ')) {
+        eligible = true;
+        reason = `ಕರ್ನಾಟಕ ಸಾಮಾನ್ಯ ಭವಿಷ್ಯ ನಿಧಿ ನಿಯಮಾವಳಿಗಳು (KGPF Rules) ನಿಯಮ 13 ರನ್ವಯ ಒಟ್ಟು ಶಿಲ್ಕು ₹${gpfCreditBalance.toLocaleString('en-IN')}/- ಗಳಲ್ಲಿ ₹${gpfWithdrawalAmount.toLocaleString('en-IN')}/- ಗಳ ಮರುಪಾವತಿ ರಹಿತ ಭಾಗಶಃ ಅಂತಿಮ ಹಿಂಪಡೆಯುವಿಕೆಗೆ ಅರ್ಹತೆ ಹೊಂದಿದ್ದಾರೆ.`;
+      } else if (selectedOrderType.includes('ಕಛೇರಿ ಆದೇಶ')) {
+        eligible = true;
+        reason = `${selectedOrderType} ನಿಯಮಾನುಸಾರ ಅಧಿಕೃತ ಕಛೇರಿ ಆದೇಶ ಹೊರಡಿಸಲು ಅರ್ಹತೆ ಪರಿಶೀಲಿಸಲಾಗಿದೆ.`;
       } else {
         const isTimeBound = selectedOrderType.includes('ಕಾಲಮಿತಿ') || selectedOrderType.includes('ಸ್ವಯಂಚಾಲಿತ');
         incAmount = isTimeBound ? Math.round((basic * 0.03) / 50) * 50 || 1250 : Math.round((basic * 0.03) / 50) * 50 || 1100;
@@ -331,15 +369,17 @@ export const MemorandumOrderStudio: React.FC<MemorandumOrderStudioProps> = ({
         reason = `${selectedOrderType} ನಿಯಮಾನುಸಾರ ವೇತನ ಹೆಚ್ಚಳಕ್ಕೆ ಅರ್ಹತೆ ಹೊಂದಿದ್ದಾರೆ.`;
       }
 
+      const isOfficeOrd = selectedOrderType.includes('ಕಛೇರಿ ಆದೇಶ');
+
       return {
         eligible,
         reason,
         employee,
         orderType: {
-          id: isPaternity ? 'ot-paternity-leave' : 'ot-local',
+          id: isPaternity ? 'ot-paternity-leave' : (isOfficeOrd ? 'ot-office-order' : 'ot-local'),
           nameKannada: selectedOrderType,
           nameEnglish: selectedOrderType,
-          category: isLeave ? 'leave' : 'increment',
+          category: isLeave ? 'leave' : (isOfficeOrd ? 'office_order' : 'increment'),
           description: selectedOrderType,
           isActive: true,
         },
@@ -381,6 +421,21 @@ export const MemorandumOrderStudio: React.FC<MemorandumOrderStudioProps> = ({
         applicationDate,
         birthCertificateDetails,
         employeeData: employee,
+        officeOrderDetails: {
+          orderCategory: selectedOrderType.includes('GPF ಮುಂಗಡ') ? 'gpf_advance' : selectedOrderType.includes('ಭಾಗಶಃ') ? 'gpf_partial_withdrawal' : 'office_order',
+          gpfAccountNo: gpfAccountNo || employee.gpfNumber || employee.kgidNumber,
+          gpfAdvanceAmount,
+          installmentCount,
+          installmentAmount,
+          recoveryStartMonth,
+          gpfCreditBalance,
+          gpfWithdrawalAmount,
+          inchargePost,
+          inchargeAllowancePercent,
+          deputationSchool,
+          deputationPeriod,
+          purpose: orderPurpose,
+        },
       }),
     })
       .then(res => res.json())
@@ -400,7 +455,7 @@ export const MemorandumOrderStudio: React.FC<MemorandumOrderStudioProps> = ({
         console.warn('Calculation error, fallback used:', err);
         setCalculationResult(fallbackCalc());
       });
-  }, [employee, selectedOrderType, effectiveDate, leaveFrom, leaveTo, leaveDays, childDob, childOrder, applicationDate, birthCertificateDetails]);
+  }, [employee, selectedOrderType, effectiveDate, leaveFrom, leaveTo, leaveDays, childDob, childOrder, applicationDate, birthCertificateDetails, gpfAdvanceAmount, installmentCount, installmentAmount, gpfCreditBalance, gpfWithdrawalAmount, orderPurpose, inchargePost, deputationSchool]);
 
   // Handler: KGID Search
   const handleKgidSearch = async (targetKgid?: string) => {
@@ -544,9 +599,13 @@ export const MemorandumOrderStudio: React.FC<MemorandumOrderStudioProps> = ({
     const isLeave = selectedOrderType.includes('ರಜೆ');
     const isPaternity = selectedOrderType === 'ಪಿತೃತ್ವ ರಜೆ';
 
+    const isOfficeOrder = selectedOrderType.includes('ಕಛೇರಿ ಆದೇಶ');
+    const isGpfAdvance = selectedOrderType.includes('GPF ಮುಂಗಡ');
+    const isGpfWithdrawal = selectedOrderType.includes('ಭಾಗಶಃ');
+
     const orderData = {
       orderTypeName: selectedOrderType,
-      orderTypeId: orderTypesList.find(o => o.nameKannada === selectedOrderType)?.id || (isPaternity ? 'ot-paternity-leave' : 'ot-3'),
+      orderTypeId: orderTypesList.find(o => o.nameKannada === selectedOrderType)?.id || (isPaternity ? 'ot-paternity-leave' : isGpfAdvance ? 'ot-gpf-advance' : isGpfWithdrawal ? 'ot-gpf-partial-withdrawal' : isOfficeOrder ? 'ot-general-office-order' : 'ot-3'),
       kgidNumber: employee.kgidNumber,
       orderNumber: customOrderNo || undefined,
       fileId: selectedFileId,
@@ -560,6 +619,21 @@ export const MemorandumOrderStudio: React.FC<MemorandumOrderStudioProps> = ({
       showCaseworkerSignature,
       caseworkerName,
       caseworkerDesignation,
+      officeOrderDetails: {
+        orderCategory: isGpfAdvance ? 'gpf_advance' : isGpfWithdrawal ? 'gpf_partial_withdrawal' : 'office_order',
+        gpfAccountNo: gpfAccountNo || employee.gpfNumber || employee.kgidNumber,
+        gpfAdvanceAmount: Number(gpfAdvanceAmount) || 50000,
+        installmentCount: Number(installmentCount) || 24,
+        installmentAmount: Number(installmentAmount) || Math.round(Number(gpfAdvanceAmount) / Number(installmentCount || 1)),
+        recoveryStartMonth: recoveryStartMonth || 'ಮುಂದಿನ ಮಾಹೆಯ ವೇತನದಿಂದ',
+        gpfCreditBalance: Number(gpfCreditBalance) || 350000,
+        gpfWithdrawalAmount: Number(gpfWithdrawalAmount) || 150000,
+        inchargePost,
+        inchargeAllowancePercent,
+        deputationSchool,
+        deputationPeriod,
+        purpose: orderPurpose,
+      },
       leaveDetails: isLeave ? {
         leaveType: selectedOrderType,
         leaveFrom,
@@ -622,12 +696,28 @@ export const MemorandumOrderStudio: React.FC<MemorandumOrderStudioProps> = ({
           newBasicPay: newPay,
           subject: isPaternity 
             ? `ಶಾಲಾ ಶಿಕ್ಷಣ ಇಲಾಖೆ, ಭದ್ರಾವತಿ ತಾಲ್ಲೂಕು - ಶ್ರೀ ${employee.fullName}, ${employee.designation} ಇವರಿಗೆ ಪಿತೃತ್ವ ರಜೆ (Paternity Leave) ಮಂಜೂರಾತಿ ಕುರಿತು.`
+            : isGpfAdvance
+            ? `ಶಾಲಾ ಶಿಕ್ಷಣ ಇಲಾಖೆ, ಭದ್ರಾವತಿ ತಾಲ್ಲೂಕು - ಶ್ರೀ/ಶ್ರೀಮತಿ ${employee.fullName}, ${employee.designation}, ${employee.officeLocation} ಇವರಿಗೆ GPF ಮರುಪಾವತಿಸಬಹುದಾದ ಮುಂಗಡ ಮಂಜೂರಾತಿ ಕುರಿತು ಕಛೇರಿ ಆದೇಶ.`
+            : isGpfWithdrawal
+            ? `ಶ್ರೀ/ಶ್ರೀಮತಿ ${employee.fullName}, ${employee.designation}, ${employee.officeLocation} ಇವರಿಗೆ GPF ಮರುಪಾವತಿ ರಹಿತ ಭಾಗಶಃ ಅಂತಿಮ ಹಿಂಪಡೆಯುವಿಕೆ (Part-Final Withdrawal) ಮಂಜೂರಾತಿ ಕಛೇರಿ ಆದೇಶ.`
+            : isOfficeOrder
+            ? `${selectedOrderType} - ಶ್ರೀ/ಶ್ರೀಮತಿ ${employee.fullName}, ${employee.designation}`
             : `${selectedOrderType} ಮಂಜೂರಾತಿ ಆದೇಶ - ಶ್ರೀ/ಶ್ರೀಮತಿ ${employee.fullName}, ${employee.designation}`,
           preamble: isPaternity
             ? `ಭದ್ರಾವತಿ ಶೈಕ್ಷಣಿಕ ವಲಯದ ${employee.officeLocation} ಇಲ್ಲಿ ಕರ್ತವ್ಯ ನಿರ್ವಹಿಸುತ್ತಿರುವ ಶ್ರೀ ${employee.fullName}, ${employee.designation} (KGID: ${employee.kgidNumber}) ಇವರು ತಮ್ಮ ${childOrder}ಯ ಜನನದ (ದಿನಾಂಕ: ${childDob}) ನಿಮಿತ್ತ ದಿನಾಂಕ: ${applicationDate} ರಂದು ಅರ್ಜಿ ಸಲ್ಲಿಸಿ, ದಿನಾಂಕ: ${leaveFrom} ರಿಂದ ${leaveTo} ರವರೆಗೆ ಒಟ್ಟು ${leaveDays} ದಿನಗಳ ಪಿತೃತ್ವ ರಜೆ (Paternity Leave) ಮಂಜೂರು ಮಾಡಲು ಕೋರಿರುತ್ತಾರೆ. ಕೆಸಿಎಸ್ಆರ್ ನಿಯಮ 135-ಎ ಹಾಗೂ ಸರ್ಕಾರಿ ಆದೇಶ ಸಂ: ಆಇ 4 ಎಸ್ಆರ್ಎಸ್ 99 ದಿನಾಂಕ: 08-02-1999 ರನ್ವಯ ಅರ್ಹತೆಯನ್ನು ಪರಿಶೀಲಿಸಿ, ಕೆಳಕಂಡಂತೆ ಜ್ಞಾಪನಾ ಆದೇಶ ಹೊರಡಿಸಲಾಗಿದೆ.`
+            : isGpfAdvance
+            ? `ಭದ್ರಾವತಿ ಶೈಕ್ಷಣಿಕ ವಲಯದ ${employee.officeLocation} ಇಲ್ಲಿ ಕರ್ತವ್ಯ ನಿರ್ವಹಿಸುತ್ತಿರುವ ಶ್ರೀ/ಶ್ರೀಮತಿ ${employee.fullName}, ${employee.designation} (KGID: ${employee.kgidNumber}, GPF ಖಾತೆ ಸಂ: ${gpfAccountNo || employee.gpfNumber || employee.kgidNumber}) ಇವರು ತಮ್ಮ ${orderPurpose} ಪ್ರಯುಕ್ತ ₹${gpfAdvanceAmount.toLocaleString('en-IN')}/- ಗಳ ಸಾಮಾನ್ಯ ಭವಿಷ್ಯ ನಿಧಿ ಮುಂಗಡ ಮಂಜೂರು ಮಾಡುವಂತೆ ಕೋರಿರುತ್ತಾರೆ. ಅರ್ಜಿಯನ್ನು ಪರಿಶೀಲಿಸಿ ನಿಯಮಾವಳಿಗಳ ಅನ್ವಯ ಕೆಳಕಂಡಂತೆ ಕಛೇರಿ ಆದೇಶ ಹೊರಡಿಸಲಾಗಿದೆ.`
+            : isGpfWithdrawal
+            ? `ಶ್ರೀ/ಶ್ರೀಮತಿ ${employee.fullName}, ${employee.designation} ಇವರು 15 ವರ್ಷಗಳಿಗಿಂತ ಹೆಚ್ಚಿನ ಅರ್ಹತಾದಾಯಕ ಸೇವೆ ಸಲ್ಲಿಸಿದ್ದು, ತಮ್ಮ ${orderPurpose} ಕಾರಣಕ್ಕಾಗಿ GPF ಖಾತೆಯಿಂದ ₹${gpfWithdrawalAmount.toLocaleString('en-IN')}/- ಗಳ ಮರುಪಾವತಿ ರಹಿತ ಭಾಗಶಃ ಅಂತಿಮ ಮೊತ್ತ ಹಿಂಪಡೆಯಲು ಕೋರಿರುತ್ತಾರೆ. ಅರ್ಜಿಯನ್ನು ಕೆಜಿಪಿಎಫ್ ನಿಯಮ 13 ರನ್ವಯ ಪರಿಶೀಲಿಸಿ ಕೆಳಕಂಡಂತೆ ಆದೇಶಿಸಲಾಗಿದೆ.`
+            : isOfficeOrder
+            ? `ಶ್ರೀ/ಶ್ರೀಮತಿ ${employee.fullName}, ${employee.designation}, ${employee.officeLocation} ಇವರಿಗೆ ಸಂಬಂಧಿಸಿದಂತೆ ಕಚೇರಿಯ ಆದೇಶವನ್ನು ಹೊರಡಿಸಲಾಗಿದ್ದು, ನಿಯಮಾನುಸಾರ ಪಾಲಿಸಲು ಸೂಚಿಸಲಾಗಿದೆ.`
             : `ಸರ್ಕಾರಿ ನಿಯಮಾವಳಿಗಳ ಅನ್ವಯ ಹಾಗೂ ಸಕ್ಷಮ ಪ್ರಾಧಿಕಾರ ಪರಿಶೀಲನೆ ಮೇರೆಗೆ ಆದೇಶ ಹೊರಡಿಸಲಾಗಿದೆ.`,
           orderText: isPaternity
             ? `ಶ್ರೀ ${employee.fullName}, ${employee.designation}, ${employee.officeLocation} ಇವರಿಗೆ ತಮ್ಮ ${childOrder}ಯ ಜನನದ ನಿಮಿತ್ತ ದಿನಾಂಕ: ${leaveFrom} ರಿಂದ ${leaveTo} ರವರೆಗೆ ಒಟ್ಟು ${leaveDays} ದಿನಗಳ ಪಿತೃತ್ವ ರಜೆಯನ್ನು (Paternity Leave) ಕರ್ನಾಟಕ ನಾಗರಿಕ ಸೇವಾ ನಿಯಮಗಳು ನಿಯಮ 135-ಎ ಹಾಗೂ ಸರ್ಕಾರಿ ಆದೇಶ ಸಂ: ಆಇ 4 ಎಸ್ಆರ್ಎಸ್ 99 ದಿನಾಂಕ: 08-02-1999 ರನ್ವಯ ಕರ್ತವ್ಯದ ಮೇಲಿರುವಂತೆ ಪೂರ್ಣ ವೇತನ ಮತ್ತು ಭತ್ಯೆಗಳೊಂದಿಗೆ ಮಂಜೂರು ಮಾಡಲಾಗಿದೆ.`
+            : isGpfAdvance
+            ? `ಶ್ರೀ/ಶ್ರೀಮತಿ ${employee.fullName}, ${employee.designation}, ${employee.officeLocation} ಇವರ ಸಾಮಾನ್ಯ ಭವಿಷ್ಯ ನಿಧಿ ಖಾತೆಯಿಂದ ಕೆಜಿಪಿಎಫ್ ನಿಯಮ 10 & 12 ರನ್ವಯ ₹${gpfAdvanceAmount.toLocaleString('en-IN')}/- ಗಳ ಮರುಪಾವತಿಸಬಹುದಾದ ಮುಂಗಡ ಹಣವನ್ನು ಮಂಜೂರು ಮಾಡಲಾಗಿದೆ. ಸದರಿ ಮೊತ್ತವನ್ನು ${installmentCount} ಸಮಾನ ಮಾಸಿಕ ಕಂತುಗಳಲ್ಲಿ (ಮಾಸಿಕ ₹${installmentAmount.toLocaleString('en-IN')}/-) ${recoveryStartMonth} ವೇತನ ಪಟ್ಟಿಯಿಂದ ಕಡ್ಡಾಯವಾಗಿ ಕಡಿತಗೊಳಿಸತಕ್ಕದ್ದು.`
+            : isGpfWithdrawal
+            ? `ಶ್ರೀ/ಶ್ರೀಮತಿ ${employee.fullName}, ${employee.designation}, ${employee.officeLocation} ಇವರ GPF ಖಾತೆಯಲ್ಲಿ (ಖಾತೆ ಸಂ: ${gpfAccountNo || employee.gpfNumber || employee.kgidNumber}) ಲಭ್ಯವಿರುವ ಒಟ್ಟು ಶಿಲ್ಕು ಮೊತ್ತ ₹${gpfCreditBalance.toLocaleString('en-IN')}/- ಗಳಲ್ಲಿ, KGPF ನಿಯಮ 13 ರನ್ವಯ ₹${gpfWithdrawalAmount.toLocaleString('en-IN')}/- ಗಳ ಮರುಪಾವತಿ ರಹಿತ (Non-Refundable) ಭಾಗಶಃ ಅಂತಿಮ ಮೊತ್ತವನ್ನು ಮಂಜೂರು ಮಾಡಲಾಗಿದೆ.`
             : `ಶ್ರೀ/ಶ್ರೀಮತಿ ${employee.fullName}, ${employee.designation}, ಕೆಜಿಐಡಿ: ${employee.kgidNumber} ಇವರಿಗೆ ${selectedOrderType} ಮಂಜೂರು ಮಾಡಲಾಗಿದೆ.`,
           officialRemarks: officialRemarks || undefined,
           leaveDetails: orderData.leaveDetails,
@@ -658,7 +748,7 @@ export const MemorandumOrderStudio: React.FC<MemorandumOrderStudioProps> = ({
               <div>ದಿನಾಂಕ: <span>${nowStr}</span></div>
             </div>
             <div class="text-center mb-2">
-              <span class="text-xs font-bold uppercase bg-stone-100 px-3 py-1 border rounded">ಅಧಿಕೃತ ಜ್ಞಾಪನ</span>
+              <span class="text-xs font-bold uppercase bg-stone-100 px-3 py-1 border rounded">${isOfficeOrder ? ':: ಕಛೇರಿ ಆದೇಶ ::' : 'ಅಧಿಕೃತ ಜ್ಞಾಪನ'}</span>
             </div>
             <div class="space-y-1 text-xs mb-3">
               <p><strong>ವಿಷಯ:</strong> ${fallbackOrder.subject}</p>
@@ -668,11 +758,73 @@ export const MemorandumOrderStudio: React.FC<MemorandumOrderStudioProps> = ({
                 <p class="pl-11">3. ಮಗುವಿನ ಜನನ ಪ್ರಮಾಣಪತ್ರ / ಆಸ್ಪತ್ರೆ ದಾಖಲೆ: ${birthCertificateDetails}.</p>
                 <p class="pl-11">4. ಕರ್ನಾಟಕ ನಾಗರಿಕ ಸೇವಾ ನಿಯಮಗಳು (KCSRs) ನಿಯಮ 135-ಎ (KCSR Rule 135-A).</p>
                 <p class="pl-11">5. ಸರ್ಕಾರಿ ಆದೇಶ ಸಂಖ್ಯೆ: ಆಇ 4 ಎಸ್ಆರ್ಎಸ್ 99 ದಿನಾಂಕ: 08-02-1999.</p>
+              ` : isGpfAdvance ? `
+                <p><strong>ಉಲ್ಲೇಖ:</strong> 1. ಸಂಬಂಧಪಟ್ಟ ನೌಕರರ ಅರ್ಜಿ ದಿನಾಂಕ: ${nowStr}.</p>
+                <p class="pl-11">2. ಮುಖ್ಯೋಪಾಧ್ಯಾಯರ ಶಿಫಾರಸು ಪತ್ರ.</p>
+                <p class="pl-11">3. ಕರ್ನಾಟಕ ಸಾಮಾನ್ಯ ಭವಿಷ್ಯ ನಿಧಿ ನಿಯಮಾವಳಿಗಳು (KGPF Rules) ನಿಯಮ 10 ಮತ್ತು 12.</p>
+              ` : isGpfWithdrawal ? `
+                <p><strong>ಉಲ್ಲೇಖ:</strong> 1. ಸಂಬಂಧಪಟ್ಟ ನೌಕರರ ಅರ್ಜಿ ದಿನಾಂಕ: ${nowStr}.</p>
+                <p class="pl-11">2. ಕರ್ನಾಟಕ ಸಾಮಾನ್ಯ ಭವಿಷ್ಯ ನಿಧಿ ನಿಯಮಾವಳಿಗಳು (KGPF Rules) ನಿಯಮ 13.</p>
               ` : `
                 <p><strong>ಉಲ್ಲೇಖ:</strong> 1. ಸಂಬಂಧಪಟ್ಟ ನೌಕರರ ಪ್ರಸ್ತಾವನೆ ಹಾಗೂ ಸೇವಾ ಪುಸ್ತಕ ಪರಿಶೀಲನೆ.</p>
               `}
             </div>
             <p class="text-xs mb-2"><strong>ಪ್ರಸ್ತಾವನೆ:</strong> ${fallbackOrder.preamble}</p>
+
+            ${isGpfAdvance ? `
+              <div class="overflow-x-auto my-2">
+                <table class="w-full border-collapse border border-stone-400 text-[10.5px] bg-white">
+                  <thead>
+                    <tr class="bg-stone-100 text-stone-900 font-bold text-center">
+                      <th class="border border-stone-400 p-1">ಕ್ರ.ಸಂ.</th>
+                      <th class="border border-stone-400 p-1 text-left">ನೌಕರರ ಹೆಸರು & ಹುದ್ದೆ</th>
+                      <th class="border border-stone-400 p-1">GPF ಖಾತೆ ಸಂಖ್ಯೆ</th>
+                      <th class="border border-stone-400 p-1 bg-amber-50">ಮಂಜೂರಾದ ಮುಂಗಡ</th>
+                      <th class="border border-stone-400 p-1">ಕಂತುಗಳ ಸಂಖ್ಯೆ</th>
+                      <th class="border border-stone-400 p-1">ಮಾಸಿಕ ಕಂತು</th>
+                      <th class="border border-stone-400 p-1 text-left">ಉದ್ದೇಶ</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="text-stone-800 text-center">
+                      <td class="border border-stone-400 p-1 font-bold">1</td>
+                      <td class="border border-stone-400 p-1 text-left font-semibold">${employee.fullName}<br/><span class="text-[9px] text-stone-600">${employee.designation}</span></td>
+                      <td class="border border-stone-400 p-1 font-mono">${gpfAccountNo || employee.kgidNumber}</td>
+                      <td class="border border-stone-400 p-1 font-mono font-bold text-amber-950 bg-amber-50">₹${gpfAdvanceAmount.toLocaleString('en-IN')}/-</td>
+                      <td class="border border-stone-400 p-1 font-mono">${installmentCount}</td>
+                      <td class="border border-stone-400 p-1 font-mono font-bold text-sky-950">₹${installmentAmount.toLocaleString('en-IN')}/-</td>
+                      <td class="border border-stone-400 p-1 text-left text-[9.5px]">${orderPurpose}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            ` : isGpfWithdrawal ? `
+              <div class="overflow-x-auto my-2">
+                <table class="w-full border-collapse border border-stone-400 text-[10.5px] bg-white">
+                  <thead>
+                    <tr class="bg-stone-100 text-stone-900 font-bold text-center">
+                      <th class="border border-stone-400 p-1">ಕ್ರ.ಸಂ.</th>
+                      <th class="border border-stone-400 p-1 text-left">ನೌಕರರ ಹೆಸರು & ಹುದ್ದೆ</th>
+                      <th class="border border-stone-400 p-1">GPF ಖಾತೆ ಸಂಖ್ಯೆ</th>
+                      <th class="border border-stone-400 p-1">ಖಾತೆಯಲ್ಲಿನ ಒಟ್ಟು ಶಿಲ್ಕು</th>
+                      <th class="border border-stone-400 p-1 bg-emerald-50">ಮಂಜೂರಾದ ಭಾಗಶಃ ಮೊತ್ತ</th>
+                      <th class="border border-stone-400 p-1 text-left">ಉದ್ದೇಶ</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="text-stone-800 text-center">
+                      <td class="border border-stone-400 p-1 font-bold">1</td>
+                      <td class="border border-stone-400 p-1 text-left font-semibold">${employee.fullName}<br/><span class="text-[9px] text-stone-600">${employee.designation}</span></td>
+                      <td class="border border-stone-400 p-1 font-mono">${gpfAccountNo || employee.kgidNumber}</td>
+                      <td class="border border-stone-400 p-1 font-mono">₹${gpfCreditBalance.toLocaleString('en-IN')}/-</td>
+                      <td class="border border-stone-400 p-1 font-mono font-bold text-emerald-950 bg-emerald-50">₹${gpfWithdrawalAmount.toLocaleString('en-IN')}/-</td>
+                      <td class="border border-stone-400 p-1 text-left text-[9.5px]">${orderPurpose}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            ` : ''}
+
             <p class="text-xs leading-relaxed mb-4 indent-6">${fallbackOrder.orderText}</p>
             ${isPaternity ? `
               <div class="mt-2 p-2.5 bg-stone-50 border border-stone-300 rounded text-[11px] space-y-1 mb-4">
@@ -687,12 +839,8 @@ export const MemorandumOrderStudio: React.FC<MemorandumOrderStudioProps> = ({
                 <div style="height: 48px;" class="flex items-center justify-center border-b border-dashed border-stone-400 mb-2">
                   <span class="text-[11px] text-stone-500 font-sans">[ಸಹಿಗಾಗಿ ಖಾಲಿ ಜಾಗ]</span>
                 </div>
-                <p class="text-xs text-stone-700">ಸಹಿ / ಭೌತಿಕ ಸಹಿ</p>
-                ${showCaseworkerSignature ? `
-                  <p class="font-bold text-xs text-stone-950">(${caseworkerName})</p>
-                  <p class="text-[11px] text-stone-700">${caseworkerDesignation}</p>
-                ` : ''}
-                <p class="text-[10px] text-stone-600">ಕ್ಷೇತ್ರ ಶಿಕ್ಷಣಾಧಿಕಾರಿಗಳ ಕಛೇರಿ, ಭದ್ರಾವತಿ</p>
+                <p class="font-bold text-xs text-stone-950">ಕ್ಷೇತ್ರ ಶಿಕ್ಷಣಾಧಿಕಾರಿಗಳು</p>
+                <p class="text-xs text-stone-700">ಭದ್ರಾವತಿ ತಾಲ್ಲೂಕು</p>
               </div>
             </div>
             <div class="mt-4 pt-2 border-t text-[10px] text-stone-600">
@@ -754,12 +902,28 @@ export const MemorandumOrderStudio: React.FC<MemorandumOrderStudioProps> = ({
         newBasicPay: newPay,
         subject: isPaternity
           ? `ಶಾಲಾ ಶಿಕ್ಷಣ ಇಲಾಖೆ, ಭದ್ರಾವತಿ ತಾಲ್ಲೂಕು - ಶ್ರೀ ${employee.fullName}, ${employee.designation} ಇವರಿಗೆ ಪಿತೃತ್ವ ರಜೆ (Paternity Leave) ಮಂಜೂರಾತಿ ಕುರಿತು.`
+          : isGpfAdvance
+          ? `ಶಾಲಾ ಶಿಕ್ಷಣ ಇಲಾಖೆ, ಭದ್ರಾವತಿ ತಾಲ್ಲೂಕು - ಶ್ರೀ/ಶ್ರೀಮತಿ ${employee.fullName}, ${employee.designation}, ${employee.officeLocation} ಇವರಿಗೆ GPF ಮರುಪಾವತಿಸಬಹುದಾದ ಮುಂಗಡ ಮಂಜೂರಾತಿ ಕುರಿತು ಕಛೇರಿ ಆದೇಶ.`
+          : isGpfWithdrawal
+          ? `ಶ್ರೀ/ಶ್ರೀಮತಿ ${employee.fullName}, ${employee.designation}, ${employee.officeLocation} ಇವರಿಗೆ GPF ಮರುಪಾವತಿ ರಹಿತ ಭಾಗಶಃ ಅಂತಿಮ ಹಿಂಪಡೆಯುವಿಕೆ (Part-Final Withdrawal) ಮಂಜೂರಾತಿ ಕಛೇರಿ ಆದೇಶ.`
+          : isOfficeOrder
+          ? `${selectedOrderType} - ಶ್ರೀ/ಶ್ರೀಮತಿ ${employee.fullName}, ${employee.designation}`
           : `${selectedOrderType} ಮಂಜೂರಾತಿ ಆದೇಶ - ಶ್ರೀ/ಶ್ರೀಮತಿ ${employee.fullName}, ${employee.designation}`,
         preamble: isPaternity
           ? `ಭದ್ರಾವತಿ ಶೈಕ್ಷಣಿಕ ವಲಯದ ${employee.officeLocation} ಇಲ್ಲಿ ಕರ್ತವ್ಯ ನಿರ್ವಹಿಸುತ್ತಿರುವ ಶ್ರೀ ${employee.fullName}, ${employee.designation} (KGID: ${employee.kgidNumber}) ಇವರು ತಮ್ಮ ${childOrder}ಯ ಜನನದ (ದಿನಾಂಕ: ${childDob}) ನಿಮಿತ್ತ ದಿನಾಂಕ: ${applicationDate} ರಂದು ಅರ್ಜಿ ಸಲ್ಲಿಸಿ, ದಿನಾಂಕ: ${leaveFrom} ರಿಂದ ${leaveTo} ರವರೆಗೆ ಒಟ್ಟು ${leaveDays} ದಿನಗಳ ಪಿತೃತ್ವ ರಜೆ (Paternity Leave) ಮಂಜೂರು ಮಾಡಲು ಕೋರಿರುತ್ತಾರೆ. ಕೆಸಿಎಸ್ಆರ್ ನಿಯಮ 135-ಎ ಹಾಗೂ ಸರ್ಕಾರಿ ಆದೇಶ ಸಂ: ಆಇ 4 ಎಸ್ಆರ್ಎಸ್ 99 ದಿನಾಂಕ: 08-02-1999 ರನ್ವಯ ಅರ್ಹತೆಯನ್ನು ಪರಿಶೀಲಿಸಿ, ಕೆಳಕಂಡಂತೆ ಜ್ಞಾಪನಾ ಆದೇಶ ಹೊರಡಿಸಲಾಗಿದೆ.`
+          : isGpfAdvance
+          ? `ಭದ್ರಾವತಿ ಶೈಕ್ಷಣಿಕ ವಲಯದ ${employee.officeLocation} ಇಲ್ಲಿ ಕರ್ತವ್ಯ ನಿರ್ವಹಿಸುತ್ತಿರುವ ಶ್ರೀ/ಶ್ರೀಮತಿ ${employee.fullName}, ${employee.designation} (KGID: ${employee.kgidNumber}, GPF ಖಾತೆ ಸಂ: ${gpfAccountNo || employee.gpfNumber || employee.kgidNumber}) ಇವರು ತಮ್ಮ ${orderPurpose} ಪ್ರಯುಕ್ತ ₹${gpfAdvanceAmount.toLocaleString('en-IN')}/- ಗಳ ಸಾಮಾನ್ಯ ಭವಿಷ್ಯ ನಿಧಿ ಮುಂಗಡ ಮಂಜೂರು ಮಾಡುವಂತೆ ಕೋರಿರುತ್ತಾರೆ. ಅರ್ಜಿಯನ್ನು ಪರಿಶೀಲಿಸಿ ನಿಯಮಾವಳಿಗಳ ಅನ್ವಯ ಕೆಳಕಂಡಂತೆ ಕಛೇರಿ ಆದೇಶ ಹೊರಡಿಸಲಾಗಿದೆ.`
+          : isGpfWithdrawal
+          ? `ಶ್ರೀ/ಶ್ರೀಮತಿ ${employee.fullName}, ${employee.designation} ಇವರು 15 ವರ್ಷಗಳಿಗಿಂತ ಹೆಚ್ಚಿನ ಅರ್ಹತಾದಾಯಕ ಸೇವೆ ಸಲ್ಲಿಸಿದ್ದು, ತಮ್ಮ ${orderPurpose} ಕಾರಣಕ್ಕಾಗಿ GPF ಖಾತೆಯಿಂದ ₹${gpfWithdrawalAmount.toLocaleString('en-IN')}/- ಗಳ ಮರುಪಾವತಿ ರಹಿತ ಭಾಗಶಃ ಅಂತಿಮ ಮೊತ್ತ ಹಿಂಪಡೆಯಲು ಕೋರಿರುತ್ತಾರೆ. ಅರ್ಜಿಯನ್ನು ಕೆಜಿಪಿಎಫ್ ನಿಯಮ 13 ರನ್ವಯ ಪರಿಶೀಲಿಸಿ ಕೆಳಕಂಡಂತೆ ಆದೇಶಿಸಲಾಗಿದೆ.`
+          : isOfficeOrder
+          ? `ಶ್ರೀ/ಶ್ರೀಮತಿ ${employee.fullName}, ${employee.designation}, ${employee.officeLocation} ಇವರಿಗೆ ಸಂಬಂಧಿಸಿದಂತೆ ಕಚೇರಿಯ ಆದೇಶವನ್ನು ಹೊರಡಿಸಲಾಗಿದ್ದು, ನಿಯಮಾನುಸಾರ ಪಾಲಿಸಲು ಸೂಚಿಸಲಾಗಿದೆ.`
           : `ಸರ್ಕಾರಿ ನಿಯಮಾವಳಿಗಳ ಅನ್ವಯ ಹಾಗೂ ಸಕ್ಷಮ ಪ್ರಾಧಿಕಾರ ಪರಿಶೀಲನೆ ಮೇರೆಗೆ ಆದೇಶ ಹೊರಡಿಸಲಾಗಿದೆ.`,
         orderText: isPaternity
           ? `ಶ್ರೀ ${employee.fullName}, ${employee.designation}, ${employee.officeLocation} ಇವರಿಗೆ ತಮ್ಮ ${childOrder}ಯ ಜನನದ ನಿಮಿತ್ತ ದಿನಾಂಕ: ${leaveFrom} ರಿಂದ ${leaveTo} ರವರೆಗೆ ಒಟ್ಟು ${leaveDays} ದಿನಗಳ ಪಿತೃತ್ವ ರಜೆಯನ್ನು (Paternity Leave) ಕರ್ನಾಟಕ ನಾಗರಿಕ ಸೇವಾ ನಿಯಮಗಳು ನಿಯಮ 135-ಎ ಹಾಗೂ ಸರ್ಕಾರಿ ಆದೇಶ ಸಂ: ಆಇ 4 ಎಸ್ಆರ್ಎಸ್ 99 ದಿನಾಂಕ: 08-02-1999 ರನ್ವಯ ಕರ್ತವ್ಯದ ಮೇಲಿರುವಂತೆ ಪೂರ್ಣ ವೇತನ ಮತ್ತು ಭತ್ಯೆಗಳೊಂದಿಗೆ ಮಂಜೂರು ಮಾಡಲಾಗಿದೆ.`
+          : isGpfAdvance
+          ? `ಶ್ರೀ/ಶ್ರೀಮತಿ ${employee.fullName}, ${employee.designation}, ${employee.officeLocation} ಇವರ ಸಾಮಾನ್ಯ ಭವಿಷ್ಯ ನಿಧಿ ಖಾತೆಯಿಂದ ಕೆಜಿಪಿಎಫ್ ನಿಯಮ 10 & 12 ರನ್ವಯ ₹${gpfAdvanceAmount.toLocaleString('en-IN')}/- ಗಳ ಮರುಪಾವತಿಸಬಹುದಾದ ಮುಂಗಡ ಹಣವನ್ನು ಮಂಜೂರು ಮಾಡಲಾಗಿದೆ. ಸದರಿ ಮೊತ್ತವನ್ನು ${installmentCount} ಸಮಾನ ಮಾಸಿಕ ಕಂತುಗಳಲ್ಲಿ (ಮಾಸಿಕ ₹${installmentAmount.toLocaleString('en-IN')}/-) ${recoveryStartMonth} ವೇತನ ಪಟ್ಟಿಯಿಂದ ಕಡ್ಡಾಯವಾಗಿ ಕಡಿತಗೊಳಿಸತಕ್ಕದ್ದು.`
+          : isGpfWithdrawal
+          ? `ಶ್ರೀ/ಶ್ರೀಮತಿ ${employee.fullName}, ${employee.designation}, ${employee.officeLocation} ಇವರ GPF ಖಾತೆಯಲ್ಲಿ (ಖಾತೆ ಸಂ: ${gpfAccountNo || employee.gpfNumber || employee.kgidNumber}) ಲಭ್ಯವಿರುವ ಒಟ್ಟು ಶಿಲ್ಕು ಮೊತ್ತ ₹${gpfCreditBalance.toLocaleString('en-IN')}/- ಗಳಲ್ಲಿ, KGPF ನಿಯಮ 13 ರನ್ವಯ ₹${gpfWithdrawalAmount.toLocaleString('en-IN')}/- ಗಳ ಮರುಪಾವತಿ ರಹಿತ (Non-Refundable) ಭಾಗಶಃ ಅಂತಿಮ ಮೊತ್ತವನ್ನು ಮಂಜೂರು ಮಾಡಲಾಗಿದೆ.`
           : `ಶ್ರೀ/ಶ್ರೀಮತಿ ${employee.fullName}, ${employee.designation}, ಕೆಜಿಐಡಿ: ${employee.kgidNumber} ಇವರಿಗೆ ${selectedOrderType} ಮಂಜೂರು ಮಾಡಲಾಗಿದೆ.`,
         officialRemarks: officialRemarks || undefined,
         leaveDetails: orderData.leaveDetails,
@@ -790,7 +954,7 @@ export const MemorandumOrderStudio: React.FC<MemorandumOrderStudioProps> = ({
             <div>ದಿನಾಂಕ: <span>${nowStr}</span></div>
           </div>
           <div class="text-center mb-2">
-            <span class="text-xs font-bold uppercase bg-stone-100 px-3 py-1 border rounded">ಅಧಿಕೃತ ಜ್ಞಾಪನ</span>
+            <span class="text-xs font-bold uppercase bg-stone-100 px-3 py-1 border rounded">${isOfficeOrder ? ':: ಕಛೇರಿ ಆದೇಶ ::' : 'ಅಧಿಕೃತ ಜ್ಞಾಪನ'}</span>
           </div>
           <div class="space-y-1 text-xs mb-3">
             <p><strong>ವಿಷಯ:</strong> ${fallbackOrder.subject}</p>
@@ -800,11 +964,73 @@ export const MemorandumOrderStudio: React.FC<MemorandumOrderStudioProps> = ({
               <p class="pl-11">3. ಮಗುವಿನ ಜನನ ಪ್ರಮಾಣಪತ್ರ / ಆಸ್ಪತ್ರೆ ದಾಖಲೆ: ${birthCertificateDetails}.</p>
               <p class="pl-11">4. ಕರ್ನಾಟಕ ನಾಗರಿಕ ಸೇವಾ ನಿಯಮಗಳು (KCSRs) ನಿಯಮ 135-ಎ (KCSR Rule 135-A).</p>
               <p class="pl-11">5. ಸರ್ಕಾರಿ ಆದೇಶ ಸಂಖ್ಯೆ: ಆಇ 4 ಎಸ್ಆರ್ಎಸ್ 99 ದಿನಾಂಕ: 08-02-1999.</p>
+            ` : isGpfAdvance ? `
+              <p><strong>ಉಲ್ಲೇಖ:</strong> 1. ಸಂಬಂಧಪಟ್ಟ ನೌಕರರ ಅರ್ಜಿ ದಿನಾಂಕ: ${nowStr}.</p>
+              <p class="pl-11">2. ಮುಖ್ಯೋಪಾಧ್ಯಾಯರ ಶಿಫಾರಸು ಪತ್ರ.</p>
+              <p class="pl-11">3. ಕರ್ನಾಟಕ ಸಾಮಾನ್ಯ ಭವಿಷ್ಯ ನಿಧಿ ನಿಯಮಾವಳಿಗಳು (KGPF Rules) ನಿಯಮ 10 ಮತ್ತು 12.</p>
+            ` : isGpfWithdrawal ? `
+              <p><strong>ಉಲ್ಲೇಖ:</strong> 1. ಸಂಬಂಧಪಟ್ಟ ನೌಕರರ ಅರ್ಜಿ ದಿನಾಂಕ: ${nowStr}.</p>
+              <p class="pl-11">2. ಕರ್ನಾಟಕ ಸಾಮಾನ್ಯ ಭವಿಷ್ಯ ನಿಧಿ ನಿಯಮಾವಳಿಗಳು (KGPF Rules) ನಿಯಮ 13.</p>
             ` : `
               <p><strong>ಉಲ್ಲೇಖ:</strong> 1. ಸಂಬಂಧಪಟ್ಟ ನೌಕರರ ಪ್ರಸ್ತಾವನೆ ಹಾಗೂ ಸೇವಾ ಪುಸ್ತಕ ಪರಿಶೀಲನೆ.</p>
             `}
           </div>
           <p class="text-xs mb-2"><strong>ಪ್ರಸ್ತಾವನೆ:</strong> ${fallbackOrder.preamble}</p>
+
+          ${isGpfAdvance ? `
+            <div class="overflow-x-auto my-2">
+              <table class="w-full border-collapse border border-stone-400 text-[10.5px] bg-white">
+                <thead>
+                  <tr class="bg-stone-100 text-stone-900 font-bold text-center">
+                    <th class="border border-stone-400 p-1">ಕ್ರ.ಸಂ.</th>
+                    <th class="border border-stone-400 p-1 text-left">ನೌಕರರ ಹೆಸರು & ಹುದ್ದೆ</th>
+                    <th class="border border-stone-400 p-1">GPF ಖಾತೆ ಸಂಖ್ಯೆ</th>
+                    <th class="border border-stone-400 p-1 bg-amber-50">ಮಂಜೂರಾದ ಮುಂಗಡ</th>
+                    <th class="border border-stone-400 p-1">ಕಂತುಗಳ ಸಂಖ್ಯೆ</th>
+                    <th class="border border-stone-400 p-1">ಮಾಸಿಕ ಕಂತು</th>
+                    <th class="border border-stone-400 p-1 text-left">ಉದ್ದೇಶ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="text-stone-800 text-center">
+                    <td class="border border-stone-400 p-1 font-bold">1</td>
+                    <td class="border border-stone-400 p-1 text-left font-semibold">${employee.fullName}<br/><span class="text-[9px] text-stone-600">${employee.designation}</span></td>
+                    <td class="border border-stone-400 p-1 font-mono">${gpfAccountNo || employee.kgidNumber}</td>
+                    <td class="border border-stone-400 p-1 font-mono font-bold text-amber-950 bg-amber-50">₹${gpfAdvanceAmount.toLocaleString('en-IN')}/-</td>
+                    <td class="border border-stone-400 p-1 font-mono">${installmentCount}</td>
+                    <td class="border border-stone-400 p-1 font-mono font-bold text-sky-950">₹${installmentAmount.toLocaleString('en-IN')}/-</td>
+                    <td class="border border-stone-400 p-1 text-left text-[9.5px]">${orderPurpose}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          ` : isGpfWithdrawal ? `
+            <div class="overflow-x-auto my-2">
+              <table class="w-full border-collapse border border-stone-400 text-[10.5px] bg-white">
+                <thead>
+                  <tr class="bg-stone-100 text-stone-900 font-bold text-center">
+                    <th class="border border-stone-400 p-1">ಕ್ರ.ಸಂ.</th>
+                    <th class="border border-stone-400 p-1 text-left">ನೌಕರರ ಹೆಸರು & ಹುದ್ದೆ</th>
+                    <th class="border border-stone-400 p-1">GPF ಖಾತೆ ಸಂಖ್ಯೆ</th>
+                    <th class="border border-stone-400 p-1">ಖಾತೆಯಲ್ಲಿನ ಒಟ್ಟು ಶಿಲ್ಕು</th>
+                    <th class="border border-stone-400 p-1 bg-emerald-50">ಮಂಜೂರಾದ ಭಾಗಶಃ ಮೊತ್ತ</th>
+                    <th class="border border-stone-400 p-1 text-left">ಉದ್ದೇಶ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="text-stone-800 text-center">
+                    <td class="border border-stone-400 p-1 font-bold">1</td>
+                    <td class="border border-stone-400 p-1 text-left font-semibold">${employee.fullName}<br/><span class="text-[9px] text-stone-600">${employee.designation}</span></td>
+                    <td class="border border-stone-400 p-1 font-mono">${gpfAccountNo || employee.kgidNumber}</td>
+                    <td class="border border-stone-400 p-1 font-mono">₹${gpfCreditBalance.toLocaleString('en-IN')}/-</td>
+                    <td class="border border-stone-400 p-1 font-mono font-bold text-emerald-950 bg-emerald-50">₹${gpfWithdrawalAmount.toLocaleString('en-IN')}/-</td>
+                    <td class="border border-stone-400 p-1 text-left text-[9.5px]">${orderPurpose}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          ` : ''}
+
           <p class="text-xs leading-relaxed mb-4 indent-6">${fallbackOrder.orderText}</p>
           ${isPaternity ? `
             <div class="mt-2 p-2.5 bg-stone-50 border border-stone-300 rounded text-[11px] space-y-1 mb-4">
@@ -819,12 +1045,8 @@ export const MemorandumOrderStudio: React.FC<MemorandumOrderStudioProps> = ({
               <div style="height: 48px;" class="flex items-center justify-center border-b border-dashed border-stone-400 mb-2">
                 <span class="text-[11px] text-stone-500 font-sans">[ಸಹಿಗಾಗಿ ಖಾಲಿ ಜಾಗ]</span>
               </div>
-              <p class="text-xs text-stone-700">ಸಹಿ / ಭೌತಿಕ ಸಹಿ</p>
-              ${showCaseworkerSignature ? `
-                <p class="font-bold text-xs text-stone-950">(${caseworkerName})</p>
-                <p class="text-[11px] text-stone-700">${caseworkerDesignation}</p>
-              ` : ''}
-              <p class="text-[10px] text-stone-600">ಕ್ಷೇತ್ರ ಶಿಕ್ಷಣಾಧಿಕಾರಿಗಳ ಕಛೇರಿ, ಭದ್ರಾವತಿ</p>
+              <p class="font-bold text-xs text-stone-950">ಕ್ಷೇತ್ರ ಶಿಕ್ಷಣಾಧಿಕಾರಿಗಳು</p>
+              <p class="text-xs text-stone-700">ಭದ್ರಾವತಿ ತಾಲ್ಲೂಕು</p>
             </div>
           </div>
           <div class="mt-4 pt-2 border-t text-[10px] text-stone-600">
@@ -989,62 +1211,191 @@ export const MemorandumOrderStudio: React.FC<MemorandumOrderStudioProps> = ({
         </div>
       </div>
 
-      {/* STEP 1: ORDER TYPE SELECTION */}
-      <div className="bg-white border border-stone-200 rounded-lg p-5 shadow-2xs">
-        <div className="flex items-center justify-between mb-3 border-b border-stone-100 pb-2">
+      {/* STEP 1: ORDER TYPE SELECTION WITH CATEGORIES */}
+      <div className="bg-white border border-stone-200 rounded-lg p-5 shadow-2xs space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-100 pb-3">
           <div className="flex items-center gap-2">
             <span className="w-6 h-6 rounded-full bg-sky-950 text-white flex items-center justify-center text-xs font-bold">1</span>
-            <h2 className="text-sm font-bold text-stone-900 uppercase tracking-wide">
-              ಜ್ಞಾಪನಾ ಆದೇಶದ ಪ್ರಕಾರ ಆಯ್ಕೆಮಾಡಿ (Select Order Type)
+            <h2 className="text-sm font-bold text-stone-900 uppercase tracking-wide font-sans">
+              ಆದೇಶದ ವರ್ಗ ಹಾಗೂ ಪ್ರಕಾರ ಆಯ್ಕೆಮಾಡಿ (Select Order Category & Type)
             </h2>
           </div>
-          <span className="text-xs text-stone-500">ಒಟ್ಟು 8 ನಿಗದಿತ ಅಧಿಕೃತ ಆದೇಶ ಪ್ರಕಾರಗಳು</span>
+          <span className="text-xs text-stone-500 font-kannada">ಕಛೇರಿ ಆದೇಶಗಳು, ಸೇವಾ ಬಡ್ತಿಗಳು ಹಾಗೂ ರಜೆ ಮಂಜೂರಾತಿಗಳು</span>
         </div>
 
-        {/* 8 Required Karnataka Govt Order Types */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-          {[
-            { name: 'ಗಳಿಕೆ ರಜೆ', en: 'Earned Leave', badge: 'ರಜೆ ಮಂಜೂರಾತಿ', color: 'border-emerald-300 hover:border-emerald-500 bg-emerald-50/40 text-emerald-900' },
-            { name: 'ಶಿಶುಪಾಲನ ರಜೆ', en: 'Child Care Leave', badge: 'ಮಹಿಳಾ ನೌಕರರಿಗೆ', color: 'border-pink-300 hover:border-pink-500 bg-pink-50/40 text-pink-900' },
-            { name: 'ಪಿತೃತ್ವ ರಜೆ', en: 'Paternity Leave (KCSR 135-A)', badge: 'ಪುರುಷ ನೌಕರರಿಗೆ (15 ದಿನ)', color: 'border-teal-300 hover:border-teal-500 bg-teal-50/40 text-teal-900' },
-            { name: '10 ವರ್ಷದ ಕಾಲಮಿತಿ ವೇತನ ಬಡ್ತಿ', en: '10-Year Time Bound Scale', badge: '10 ವರ್ಷ ಪೂರ್ಣ', color: 'border-blue-300 hover:border-blue-500 bg-blue-50/40 text-blue-900' },
-            { name: '15 ವರ್ಷದ ಸ್ವಯಂ ಚಾಲಿತ ವೇತನ ಬಡ್ತಿ', en: '15-Year Auto Advancement', badge: '15 ವರ್ಷ ಸೇವೆ', color: 'border-indigo-300 hover:border-indigo-500 bg-indigo-50/40 text-indigo-900' },
-            { name: '20 ವರ್ಷದ ಹೆಚ್ಚುವರಿ ವೇತನ ಬಡ್ತಿ', en: '20-Year Addl Increment', badge: '20 ವರ್ಷ ಸೇವೆ', color: 'border-amber-300 hover:border-amber-500 bg-amber-50/40 text-amber-900' },
-            { name: '25 ವರ್ಷದ ಹೆಚ್ಚುವರಿ ವೇತನ ಬಡ್ತಿ', en: '25-Year Addl Increment', badge: '25 ವರ್ಷ ಸೇವೆ', color: 'border-orange-300 hover:border-orange-500 bg-orange-50/40 text-orange-900' },
-            { name: '30 ವರ್ಷದ ಹೆಚ್ಚುವರಿ ವೇತನ ಬಡ್ತಿ', en: '30-Year Addl Increment', badge: '30 ವರ್ಷ ಸೇವೆ', color: 'border-purple-300 hover:border-purple-500 bg-purple-50/40 text-purple-900' },
-          ].map((type) => {
-            const isSelected = selectedOrderType === type.name;
-            return (
-              <button
-                key={type.name}
-                type="button"
-                onClick={() => setSelectedOrderType(type.name)}
-                className={`text-left p-3 rounded-lg border-2 transition-all cursor-pointer relative ${
-                  isSelected 
-                    ? 'border-sky-950 bg-sky-50 shadow-xs ring-2 ring-sky-900/20' 
-                    : 'border-stone-200 hover:border-stone-400 bg-white'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-stone-100 text-stone-700 border border-stone-200">
-                    {type.badge}
-                  </span>
-                  {isSelected && (
-                    <span className="w-4 h-4 rounded-full bg-sky-950 text-white flex items-center justify-center text-[10px]">
-                      ✓
-                    </span>
-                  )}
-                </div>
-                <div className="font-bold text-xs text-stone-900 font-sans mt-0.5 leading-snug">
-                  {type.name}
-                </div>
-                <div className="text-[10px] text-stone-500 mt-0.5">
-                  {type.en}
-                </div>
-              </button>
-            );
-          })}
+        {/* 3 Main Category Tabs */}
+        <div className="flex flex-wrap gap-2 border-b border-stone-200 pb-2">
+          <button
+            type="button"
+            onClick={() => setOrderCategoryTab('office_orders')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+              orderCategoryTab === 'office_orders'
+                ? 'bg-amber-800 text-white shadow-xs'
+                : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>1. ಕಛೇರಿ ಆದೇಶಗಳು (Office Orders - GPF & ಇತರೆ)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setOrderCategoryTab('increments')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+              orderCategoryTab === 'increments'
+                ? 'bg-blue-900 text-white shadow-xs'
+                : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
+            }`}
+          >
+            <Clock className="w-3.5 h-3.5" />
+            <span>2. ಸೇವಾ ಬಡ್ತಿ ಜ್ಞಾಪನಗಳು (Time-Bound Scale)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setOrderCategoryTab('leaves')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+              orderCategoryTab === 'leaves'
+                ? 'bg-emerald-800 text-white shadow-xs'
+                : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
+            }`}
+          >
+            <FileCheck2 className="w-3.5 h-3.5" />
+            <span>3. ರಜೆ ಮಂಜೂರಾತಿ ಜ್ಞಾಪನಗಳು (Leave Sanctions)</span>
+          </button>
         </div>
+
+        {/* Category 1: Office Orders (GPF, Incharge, Deputation, Increment Office Order) */}
+        {orderCategoryTab === 'office_orders' && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 pt-1">
+            {[
+              { name: 'GPF ಮುಂಗಡ ಕಛೇರಿ ಆದೇಶ', en: 'GPF Temporary Advance Order', badge: 'KGPF Rule 10/12', color: 'border-amber-300' },
+              { name: 'GPF ಭಾಗಶಃ ಅಂತಿಮ ಹಿಂಪಡೆಯುವಿಕೆ ಕಛೇರಿ ಆದೇಶ', en: 'GPF Part-Final Non-Refundable', badge: 'KGPF Rule 13', color: 'border-amber-300' },
+              { name: 'ಗಳಿಕೆ ರಜೆ ನಗದೀಕರಣ ಕಛೇರಿ ಆದೇಶ', en: 'Earned Leave Encashment Order', badge: '15 ದಿನ / KCSR 118', color: 'border-emerald-300' },
+              { name: 'ವಾರ್ಷಿಕ ವೇತನ ಬಡ್ತಿ ಕಛೇರಿ ಆದೇಶ', en: 'Annual Increment Office Order', badge: 'KCSR Rule 51', color: 'border-blue-300' },
+              { name: 'ಹೆಚ್ಚುವರಿ ಪ್ರಭಾರ / ಪ್ರಭಾರ ಭತ್ಯೆ ಕಛೇರಿ ಆದೇಶ', en: 'In-charge Allowance Office Order', badge: 'KCSR Rule 32/68', color: 'border-indigo-300' },
+              { name: 'ಕರ್ತವ್ಯ ನಿಯೋಜನೆ ಕಛೇರಿ ಆದೇಶ', en: 'Duty Deputation Office Order', badge: 'ಶೈಕ್ಷಣಿಕ ನಿಯೋಜನೆ', color: 'border-purple-300' },
+              { name: 'ಸಾಮಾನ್ಯ ಕಛೇರಿ ಆದೇಶ', en: 'General Administration Office Order', badge: 'ಕಛೇರಿ ಆಡಳಿತ', color: 'border-stone-300' },
+            ].map(type => {
+              const isSelected = selectedOrderType === type.name;
+              return (
+                <button
+                  key={type.name}
+                  type="button"
+                  onClick={() => setSelectedOrderType(type.name)}
+                  className={`text-left p-3 rounded-lg border-2 transition-all cursor-pointer relative ${
+                    isSelected 
+                      ? 'border-amber-800 bg-amber-50/70 shadow-xs ring-2 ring-amber-700/20' 
+                      : 'border-stone-200 hover:border-amber-400 bg-white'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-300 font-mono">
+                      {type.badge}
+                    </span>
+                    {isSelected && (
+                      <span className="w-4 h-4 rounded-full bg-amber-800 text-white flex items-center justify-center text-[10px]">
+                        ✓
+                      </span>
+                    )}
+                  </div>
+                  <div className="font-bold text-xs text-stone-900 font-sans mt-0.5 leading-snug">
+                    {type.name}
+                  </div>
+                  <div className="text-[10px] text-stone-500 mt-0.5">
+                    {type.en}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Category 2: Time-Bound Increments */}
+        {orderCategoryTab === 'increments' && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 pt-1">
+            {[
+              { name: '10 ವರ್ಷದ ಕಾಲಮಿತಿ ವೇತನ ಬಡ್ತಿ', en: '10-Year Time Bound Scale', badge: '10 ವರ್ಷ ಸೇವೆ' },
+              { name: '15 ವರ್ಷದ ಸ್ವಯಂ ಚಾಲಿತ ವೇತನ ಬಡ್ತಿ', en: '15-Year Auto Advancement', badge: '15 ವರ್ಷ ಸೇವೆ' },
+              { name: '20 ವರ್ಷದ ಹೆಚ್ಚುವರಿ ವೇತನ ಬಡ್ತಿ', en: '20-Year Addl Increment', badge: '20 ವರ್ಷ ಸೇವೆ' },
+              { name: '25 ವರ್ಷದ ಹೆಚ್ಚುವರಿ ವೇತನ ಬಡ್ತಿ', en: '25-Year Addl Increment', badge: '25 ವರ್ಷ ಸೇವೆ' },
+              { name: '30 ವರ್ಷದ ಹೆಚ್ಚುವರಿ ವೇತನ ಬಡ್ತಿ', en: '30-Year Addl Increment', badge: '30 ವರ್ಷ ಸೇವೆ' },
+            ].map(type => {
+              const isSelected = selectedOrderType === type.name;
+              return (
+                <button
+                  key={type.name}
+                  type="button"
+                  onClick={() => setSelectedOrderType(type.name)}
+                  className={`text-left p-3 rounded-lg border-2 transition-all cursor-pointer relative ${
+                    isSelected 
+                      ? 'border-blue-900 bg-blue-50/70 shadow-xs ring-2 ring-blue-900/20' 
+                      : 'border-stone-200 hover:border-blue-400 bg-white'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-900 border border-blue-300 font-mono">
+                      {type.badge}
+                    </span>
+                    {isSelected && (
+                      <span className="w-4 h-4 rounded-full bg-blue-900 text-white flex items-center justify-center text-[10px]">
+                        ✓
+                      </span>
+                    )}
+                  </div>
+                  <div className="font-bold text-xs text-stone-900 font-sans mt-0.5 leading-snug">
+                    {type.name}
+                  </div>
+                  <div className="text-[10px] text-stone-500 mt-0.5">
+                    {type.en}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Category 3: Leaves */}
+        {orderCategoryTab === 'leaves' && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+            {[
+              { name: 'ಗಳಿಕೆ ರಜೆ', en: 'Earned Leave', badge: 'ರಜೆ ಮಂಜೂರಾತಿ' },
+              { name: 'ಶಿಶುಪಾಲನ ರಜೆ', en: 'Child Care Leave', badge: 'ಮಹಿಳಾ ನೌಕರರಿಗೆ' },
+              { name: 'ಪಿತೃತ್ವ ರಜೆ', en: 'Paternity Leave (KCSR 135-A)', badge: 'ಪುರುಷ ನೌಕರರಿಗೆ (15 ದಿನ)' },
+            ].map(type => {
+              const isSelected = selectedOrderType === type.name;
+              return (
+                <button
+                  key={type.name}
+                  type="button"
+                  onClick={() => setSelectedOrderType(type.name)}
+                  className={`text-left p-3 rounded-lg border-2 transition-all cursor-pointer relative ${
+                    isSelected 
+                      ? 'border-emerald-800 bg-emerald-50/70 shadow-xs ring-2 ring-emerald-800/20' 
+                      : 'border-stone-200 hover:border-emerald-400 bg-white'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-900 border border-emerald-300 font-mono">
+                      {type.badge}
+                    </span>
+                    {isSelected && (
+                      <span className="w-4 h-4 rounded-full bg-emerald-800 text-white flex items-center justify-center text-[10px]">
+                        ✓
+                      </span>
+                    )}
+                  </div>
+                  <div className="font-bold text-xs text-stone-900 font-sans mt-0.5 leading-snug">
+                    {type.name}
+                  </div>
+                  <div className="text-[10px] text-stone-500 mt-0.5">
+                    {type.en}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* STEP 2: KGID SEARCH & EMPLOYEE IDENTIFICATION */}
@@ -1808,6 +2159,232 @@ export const MemorandumOrderStudio: React.FC<MemorandumOrderStudioProps> = ({
               </div>
             )}
 
+            {/* SPECIALIZED OFFICE ORDER & GPF SANCTION FORM */}
+            {(selectedOrderType.includes('GPF') || selectedOrderType.includes('ಕಛೇರಿ ಆದೇಶ')) && (
+              <div className="mb-5 p-4 bg-amber-50/70 border-2 border-amber-300 rounded-lg space-y-4">
+                <div className="flex items-center justify-between border-b border-amber-200 pb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 rounded bg-amber-900 text-white text-[10px] font-bold font-mono">
+                      OFFICE ORDER DETAILS
+                    </span>
+                    <h4 className="text-xs font-bold text-amber-950 font-kannada">
+                      {selectedOrderType} - ನಿರ್ದಿಷ್ಟ ಮಂಜೂರಾತಿ ವಿವರಗಳು (Sanction Particulars)
+                    </h4>
+                  </div>
+                  <span className="text-[11px] font-bold text-amber-900 font-kannada">
+                    {selectedOrderType.includes('GPF ಮುಂಗಡ') ? 'KGPF ನಿಯಮ 10 & 12' : selectedOrderType.includes('ಭಾಗಶಃ') ? 'KGPF ನಿಯಮ 13 (ಮರುಪಾವತಿ ರಹಿತ)' : 'ಕರ್ನಾಟಕ ಸರ್ಕಾರ ನಿಯಮಾವಳಿಗಳು'}
+                  </span>
+                </div>
+
+                {/* GPF Advance Specific Inputs */}
+                {selectedOrderType.includes('GPF ಮುಂಗಡ') && (
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                      <div>
+                        <label className="block text-[11px] font-bold text-amber-950 mb-1 font-kannada">
+                          GPF ಖಾತೆ ಸಂಖ್ಯೆ (GPF A/c No) *
+                        </label>
+                        <input
+                          type="text"
+                          value={gpfAccountNo}
+                          onChange={(e) => setGpfAccountNo(e.target.value)}
+                          placeholder="GPF ಖಾತೆ ಸಂಖ್ಯೆ"
+                          className="w-full px-3 py-1.5 text-xs font-mono font-bold border border-amber-300 rounded bg-white text-stone-900"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-amber-950 mb-1 font-kannada">
+                          ಮುಂಗಡ ಮೊತ್ತ (Advance Amount ₹) *
+                        </label>
+                        <input
+                          type="number"
+                          step={1000}
+                          value={gpfAdvanceAmount}
+                          onChange={(e) => setGpfAdvanceAmount(Number(e.target.value))}
+                          className="w-full px-3 py-1.5 text-xs font-mono font-bold border border-amber-300 rounded bg-white text-stone-900"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-amber-950 mb-1 font-kannada">
+                          ಮರುಪಾವತಿ ಕಂತುಗಳು (Installments) *
+                        </label>
+                        <select
+                          value={installmentCount}
+                          onChange={(e) => setInstallmentCount(Number(e.target.value))}
+                          className="w-full px-3 py-1.5 text-xs font-mono font-bold border border-amber-300 rounded bg-white text-stone-900"
+                        >
+                          <option value={12}>12 ತಿಂಗಳ ಕಂತುಗಳು</option>
+                          <option value={24}>24 ತಿಂಗಳ ಕಂತುಗಳು (Standard)</option>
+                          <option value={36}>36 ತಿಂಗಳ ಕಂತುಗಳು</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-amber-950 mb-1 font-kannada">
+                          ಮಾಸಿಕ ಕಡಿತ (Monthly Recovery)
+                        </label>
+                        <div className="px-3 py-1.5 text-xs font-mono font-bold border border-amber-300 rounded bg-white text-sky-950">
+                          ₹{installmentAmount.toLocaleString('en-IN')}/-
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                      <div>
+                        <label className="block text-[11px] font-bold text-amber-950 mb-1 font-kannada">
+                          ಕಡಿತ ಪ್ರಾರಂಭದ ತಿಂಗಳು (Recovery Start Month)
+                        </label>
+                        <input
+                          type="text"
+                          value={recoveryStartMonth}
+                          onChange={(e) => setRecoveryStartMonth(e.target.value)}
+                          placeholder="ಉದಾ: ಮುಂದಿನ ಮಾಹೆಯ ವೇತನದಿಂದ"
+                          className="w-full px-3 py-1.5 text-xs border border-amber-300 rounded bg-white text-stone-900 font-kannada"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-amber-950 mb-1 font-kannada">
+                          ಮುಂಗಡ ಪಡೆಯುವ ಉದ್ದೇಶ (Purpose / Reason) *
+                        </label>
+                        <input
+                          type="text"
+                          value={orderPurpose}
+                          onChange={(e) => setOrderPurpose(e.target.value)}
+                          placeholder="ಉದಾ: ವೈದ್ಯಕೀಯ ಚಿಕಿತ್ಸಾ ವೆಚ್ಚ / ತುರ್ತು ಕೌಟುಂಬಿಕ ಕಾರ್ಯ"
+                          className="w-full px-3 py-1.5 text-xs border border-amber-300 rounded bg-white text-stone-900 font-kannada"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* GPF Part-Final Non-Refundable Withdrawal Inputs */}
+                {selectedOrderType.includes('ಭಾಗಶಃ') && (
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                      <div>
+                        <label className="block text-[11px] font-bold text-amber-950 mb-1 font-kannada">
+                          GPF ಖಾತೆ ಸಂಖ್ಯೆ (GPF A/c No) *
+                        </label>
+                        <input
+                          type="text"
+                          value={gpfAccountNo}
+                          onChange={(e) => setGpfAccountNo(e.target.value)}
+                          placeholder="GPF ಖಾತೆ ಸಂಖ್ಯೆ"
+                          className="w-full px-3 py-1.5 text-xs font-mono font-bold border border-amber-300 rounded bg-white text-stone-900"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-amber-950 mb-1 font-kannada">
+                          ಖಾತೆಯಲ್ಲಿನ ಒಟ್ಟು ಶಿಲ್ಕು (Total Credit Balance ₹) *
+                        </label>
+                        <input
+                          type="number"
+                          step={5000}
+                          value={gpfCreditBalance}
+                          onChange={(e) => setGpfCreditBalance(Number(e.target.value))}
+                          className="w-full px-3 py-1.5 text-xs font-mono font-bold border border-amber-300 rounded bg-white text-stone-900"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-amber-950 mb-1 font-kannada">
+                          ಭಾಗಶಃ ಅಂತಿಮ ಮೊತ್ತ (Sanctioned Withdrawal ₹) *
+                        </label>
+                        <input
+                          type="number"
+                          step={5000}
+                          value={gpfWithdrawalAmount}
+                          onChange={(e) => setGpfWithdrawalAmount(Number(e.target.value))}
+                          className="w-full px-3 py-1.5 text-xs font-mono font-bold border border-emerald-500 bg-emerald-50/50 rounded text-emerald-950"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-amber-950 mb-1 font-kannada">
+                        ಹಿಂಪಡೆಯುವ ಉದ್ದೇಶ (Rule 13 Purpose) *
+                      </label>
+                      <input
+                        type="text"
+                        value={orderPurpose}
+                        onChange={(e) => setOrderPurpose(e.target.value)}
+                        placeholder="ಉದಾ: ಸ್ವಂತ ಮನೆ ನಿರ್ಮಾಣ / ನಿವೇಶನ ಖರೀದಿ / ಮಗಳ ಮದುವೆ ವೆಚ್ಚ"
+                        className="w-full px-3 py-1.5 text-xs border border-amber-300 rounded bg-white text-stone-900 font-kannada"
+                      />
+                      <span className="text-[10px] text-amber-800 font-kannada block mt-0.5">
+                        * KGPF ನಿಯಮ 13 ರನ್ವಯ 15 ವರ್ಷ ಸೇವೆ ಪೂರೈಸಿದ ನೌಕರರಿಗೆ ಈ ಮೊತ್ತ ಮರುಪಾವತಿ ರಹಿತವಾಗಿರುತ್ತದೆ.
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Other Office Order Inputs (In-charge / Deputation) */}
+                {selectedOrderType.includes('ಹೆಚ್ಚುವರಿ ಪ್ರಭಾರ') && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div>
+                      <label className="block text-[11px] font-bold text-amber-950 mb-1 font-kannada">
+                        ಹೆಚ್ಚುವರಿ ಹುದ್ದೆ & ಶಾಲೆ (Incharge Post & School) *
+                      </label>
+                      <input
+                        type="text"
+                        value={inchargePost}
+                        onChange={(e) => setInchargePost(e.target.value)}
+                        placeholder="ಮುಖ್ಯೋಪಾಧ್ಯಾಯರು, ಸರ್ಕಾರಿ ಪ್ರೌಢಶಾಲೆ, ಭದ್ರಾವತಿ"
+                        className="w-full px-3 py-1.5 text-xs border border-amber-300 rounded bg-white text-stone-900 font-kannada"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-amber-950 mb-1 font-kannada">
+                        ಪ್ರಭಾರ ಭತ್ಯೆ ಪ್ರಮಾಣ (Charge Allowance Rate %)
+                      </label>
+                      <select
+                        value={inchargeAllowancePercent}
+                        onChange={(e) => setInchargeAllowancePercent(Number(e.target.value))}
+                        className="w-full px-3 py-1.5 text-xs font-mono font-bold border border-amber-300 rounded bg-white text-stone-900"
+                      >
+                        <option value={7.5}>7.5% (ಹೆಚ್ಚುವರಿ ಕಾರ್ಯಭಾರ)</option>
+                        <option value={15}>15.0% (ಸ್ವತಂತ್ರ ಪೂರ್ಣ ಪ್ರಭಾರ - KCSR 68)</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+
+                {selectedOrderType.includes('ಕರ್ತವ್ಯ ನಿಯೋಜನೆ') && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div>
+                      <label className="block text-[11px] font-bold text-amber-950 mb-1 font-kannada">
+                        ನಿಯೋಜಿತ ಶಾಲೆ / ಕಚೇರಿ (Deputed Place of Work) *
+                      </label>
+                      <input
+                        type="text"
+                        value={deputationSchool}
+                        onChange={(e) => setDeputationSchool(e.target.value)}
+                        placeholder="ಸರ್ಕಾರಿ ಹಿರಿಯ ಪ್ರಾಥಮಿಕ ಶಾಲೆ, ಹಳೇನಗರ, ಭದ್ರಾವತಿ"
+                        className="w-full px-3 py-1.5 text-xs border border-amber-300 rounded bg-white text-stone-900 font-kannada"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-amber-950 mb-1 font-kannada">
+                        ನಿಯೋಜನೆ ಅವಧಿ (Deputation Period)
+                      </label>
+                      <input
+                        type="text"
+                        value={deputationPeriod}
+                        onChange={(e) => setDeputationPeriod(e.target.value)}
+                        placeholder="ಆಡಳಿತಾತ್ಮಕ ಹಿತದೃಷ್ಟಿಯಿಂದ ಮುಂದಿನ ಆದೇಶದವರೆಗೆ"
+                        className="w-full px-3 py-1.5 text-xs border border-amber-300 rounded bg-white text-stone-900 font-kannada"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* CASEWORKER SIGNATURE SETTINGS (BLANK SPACE + OPTIONAL CASEWORKER INFO) */}
             <div className="mb-4 p-3 bg-stone-50 border border-stone-300 rounded-lg text-xs space-y-2">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -1820,11 +2397,11 @@ export const MemorandumOrderStudio: React.FC<MemorandumOrderStudioProps> = ({
                     className="w-4 h-4 text-sky-900 rounded cursor-pointer"
                   />
                   <label htmlFor="cb-show-caseworker-sig" className="font-bold text-stone-900 font-kannada cursor-pointer">
-                    ಪತ್ರದ ಕೊನೆಯಲ್ಲಿ ವಿಷಯ ನಿರ್ವಾಹಕರ (Caseworker) ವಿವರಗಳನ್ನು ಮುದ್ರಿಸಿ
+                    ಕಡತದ ಆಂತರಿಕ ದಾಖಲೆಗೆ ವಿಷಯ ನಿರ್ವಾಹಕರ (Caseworker Audit) ವಿವರಗಳು
                   </label>
                 </div>
                 <span className="text-[11px] text-stone-500 font-kannada">
-                  [ಸಹಿಗಾಗಿ ಖಾಲಿ ಜಾಗ] ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಸೃಜನೆಯಾಗಲಿದೆ • BEO ಸಹಿ ಇರುವುದಿಲ್ಲ
+                  ಅಧಿಕೃತ ಆದೇಶದಲ್ಲಿ 'ಕ್ಷೇತ್ರ ಶಿಕ್ಷಣಾಧಿಕಾರಿಗಳು, ಭದ್ರಾವತಿ ತಾಲ್ಲೂಕು' ಮುದ್ರಣವಾಗಲಿದೆ • ಕೇಸ್‌ವರ್ಕರ್ ವಿವರ ಆಂತರಿಕ ಆಡಿಟ್‌ಗೆ ಸೀಮಿತ
                 </span>
               </div>
 
@@ -2057,13 +2634,43 @@ export const MemorandumOrderStudio: React.FC<MemorandumOrderStudioProps> = ({
                 <strong className="font-mono">{isLeaveType ? leaveFrom : effectiveDate}</strong>
               </div>
               <div className="flex justify-between border-b border-stone-200 pb-1.5 bg-stone-100 p-2 rounded border border-stone-300">
-                <span className="text-stone-800 font-bold font-kannada">ಸಹಿ ನಿಯಮ (Signature):</span>
+                <span className="text-stone-800 font-bold font-kannada">ಸಹಿ ಪ್ರಾಧಿಕಾರ (Signature):</span>
                 <span className="text-stone-950 font-bold font-kannada">
-                  ಭೌತಿಕ ಸಹಿಗೆ ಖಾಲಿ ಜಾಗ {showCaseworkerSignature ? `• ವಿಷಯ ನಿರ್ವಾಹಕರು: ${caseworkerName}` : ''}
+                  ಕ್ಷೇತ್ರ ಶಿಕ್ಷಣಾಧಿಕಾರಿಗಳು, ಭದ್ರಾವತಿ ತಾಲ್ಲೂಕು (ಭೌತಿಕ ಸಹಿ ಸ್ಥಳ)
                 </span>
               </div>
 
-              {!isLeaveType ? (
+              {selectedOrderType.includes('GPF ಮುಂಗಡ') ? (
+                <div className="pt-1.5 space-y-1">
+                  <div className="flex justify-between text-stone-700">
+                    <span>GPF ಖಾತೆ ಸಂಖ್ಯೆ:</span>
+                    <span className="font-mono font-bold">{gpfAccountNo || employee.kgidNumber}</span>
+                  </div>
+                  <div className="flex justify-between text-amber-900 font-bold bg-amber-50 p-1.5 rounded border border-amber-200">
+                    <span>ಮಂಜೂರಾದ GPF ಮುಂಗಡ:</span>
+                    <span className="font-mono">₹{gpfAdvanceAmount.toLocaleString('en-IN')}/-</span>
+                  </div>
+                  <div className="flex justify-between text-stone-700 text-[11px]">
+                    <span>ಮರುಪಾವತಿ ಕಂತುಗಳು:</span>
+                    <span>{installmentCount} ಕಂತುಗಳು (ಮಾಸಿಕ ₹{installmentAmount.toLocaleString('en-IN')}/-)</span>
+                  </div>
+                </div>
+              ) : selectedOrderType.includes('ಭಾಗಶಃ') ? (
+                <div className="pt-1.5 space-y-1">
+                  <div className="flex justify-between text-stone-700">
+                    <span>GPF ಖಾತೆ ಸಂಖ್ಯೆ:</span>
+                    <span className="font-mono font-bold">{gpfAccountNo || employee.kgidNumber}</span>
+                  </div>
+                  <div className="flex justify-between text-stone-700 text-[11px]">
+                    <span>ಖಾತೆಯಲ್ಲಿನ ಒಟ್ಟು ಶಿಲ್ಕು:</span>
+                    <span className="font-mono">₹{gpfCreditBalance.toLocaleString('en-IN')}/-</span>
+                  </div>
+                  <div className="flex justify-between text-emerald-950 font-bold bg-emerald-50 p-1.5 rounded border border-emerald-300">
+                    <span>ಮಂಜೂರಾದ ಭಾಗಶಃ ಅಂತಿಮ ಮೊತ್ತ:</span>
+                    <span className="font-mono">₹{gpfWithdrawalAmount.toLocaleString('en-IN')}/-</span>
+                  </div>
+                </div>
+              ) : !isLeaveType ? (
                 <div className="pt-1.5">
                   <div className="flex justify-between text-stone-700 mb-1">
                     <span>ಹಿಂದಿನ ಮೂಲ ವೇತನ:</span>

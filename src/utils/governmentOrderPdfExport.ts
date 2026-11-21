@@ -232,8 +232,8 @@ export function generateGovernmentOrderPdf(
   doc.setFontSize(9);
   doc.setTextColor(15, 23, 42);
   const signer = customSignatory || {
-    name: (order as any).signatoryName || 'ಕ್ಷೇತ್ರ ಶಿಕ್ಷಣಾಧಿಕಾರಿಗಳು',
-    designation: (order as any).signatoryDesignation || 'Block Education Officer, Bhadravathi'
+    name: 'Block Education Officer',
+    designation: 'Bhadravathi Taluk'
   };
   doc.text(signer.name, sigX + 4, y + 10.5);
 
@@ -241,7 +241,7 @@ export function generateGovernmentOrderPdf(
   doc.setFontSize(8);
   doc.setTextColor(71, 85, 105);
   doc.text(signer.designation, sigX + 4, y + 15);
-  doc.text('Department of School Education & Literacy', sigX + 4, y + 19.5);
+  doc.text('Office of the BEO, Bhadravathi', sigX + 4, y + 19.5);
 
   // Distribution List
   doc.setFont('helvetica', 'bold');

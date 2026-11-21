@@ -334,9 +334,10 @@ export class BeoEOfficeSQLiteManager {
 </head>
 <body>
   <div class="header">
-    <h2>ಕರ್ನಾಟಕ ಸರ್ಕಾರ • ಸಾರ್ವಜನಿಕ ಶಿಕ್ಷಣ ಇಲಾಖೆ</h2>
-    <h3>ಕ್ಷೇತ್ರ ಶಿಕ್ಷಣಾಧಿಕಾರಿಗಳ ಕಾರ್ಯಾಲಯ, ಭದ್ರಾವತಿ ತಾಲ್ಲೂಕು, ಶಿವಮೊಗ್ಗ ಜಿಲ್ಲೆ</h3>
-    <p style="font-size: 12px; margin: 4px 0 0 0;">ಕಡತ ಕೋಡ್: ${fileCode} | ಕಡತ ಸಂ: ${letter.fileNumber}</p>
+    <h2 style="margin: 0 0 4px 0; font-size: 18px; font-weight: bold;">ಕರ್ನಾಟಕ ಸರ್ಕಾರ</h2>
+    <h3 style="margin: 0 0 4px 0; font-size: 15px; font-weight: 600;">ಶಾಲಾ ಶಿಕ್ಷಣ ಮತ್ತು ಸಾಕ್ಷರತಾ ಇಲಾಖೆ</h3>
+    <h3 style="margin: 0; font-size: 16px; font-weight: bold;">ಕ್ಷೇತ್ರ ಶಿಕ್ಷಣಾಧಿಕಾರಿಗಳ ಕಛೇರಿ, ಭದ್ರಾವತಿ ತಾಲ್ಲೂಕು</h3>
+    <p style="font-size: 12px; margin: 4px 0 0 0; color: #475569;">ಬಿ.ಹೆಚ್. ರಸ್ತೆ, ಹಳೇನಗರ, ಭದ್ರಾವತಿ, ಶಿವಮೊಗ್ಗ ಜಿಲ್ಲೆ – 577301</p>
   </div>
 
   <table class="meta-table">
@@ -359,14 +360,12 @@ ${letter.bodyText || 'ಯಾವುದೇ ವಿವರಣೆ ನಮೂದಿಸ�
     <p style="margin-bottom: 35px; font-weight: 500;">ತಮ್ಮ ನಂಬುಗೆಯ,</p>
     <!-- Generous physical signature blank space -->
     <div style="height: 50px;"></div>
-    ${(letter as any).showCaseworkerSignature && (letter as any).caseworkerName ? `
-      <p style="margin: 0; font-weight: bold; font-size: 13px;">(${ (letter as any).caseworkerName })</p>
-      <p style="margin: 2px 0 0 0; font-size: 12px; color: #475569;">${ (letter as any).caseworkerDesignation || 'ವಿಷಯ ನಿರ್ವಾಹಕರು (Caseworker)' }</p>
-    ` : ''}
+    <p style="margin: 0; font-weight: bold; font-size: 13px;">ಕ್ಷೇತ್ರ ಶಿಕ್ಷಣಾಧಿಕಾರಿಗಳು</p>
+    <p style="margin: 2px 0 0 0; font-size: 12px; color: #475569;">ಭದ್ರಾವತಿ ತಾಲ್ಲೂಕು</p>
   </div>
 
   <div class="caseworker-footer" style="margin-top: 35px; border-top: 1px dashed #cbd5e1; padding-top: 8px; font-size: 11px; color: #64748b; display: flex; justify-content: space-between;">
-    <span>ವಿಷಯ ನಿರ್ವಾಹಕರು (Caseworker): ${(letter as any).caseworkerName || 'ವಿಷಯ ನಿರ್ವಾಹಕರು'}</span>
+    <span>ಕಡತ ಆಡಿಟ್ (ವಿಷಯ ನಿರ್ವಾಹಕರು): ${(letter as any).caseworkerName || 'ವಿಷಯ ನಿರ್ವಾಹಕರು'}</span>
     <span>ದಿನಾಂಕ: ${(letter as any).preparedDate || letter.dateReceivedOrIssued}</span>
     <span>ಮುದ್ರಣ ಸ್ಥಿತಿ: ${(letter as any).printStatus || ((letter as any).isPrinted ? 'Printed' : 'Pending Print')}</span>
   </div>
@@ -1303,7 +1302,7 @@ ${letter.bodyText || 'ಯಾವುದೇ ವಿವರಣೆ ನಮೂದಿಸ�
       created_at: nowIso,
       last_updated: nowIso,
       caseworker_name: newLetter.caseworkerName || null,
-      caseworker_designation: newLetter.caseworkDesignation || newLetter.caseworkerDesignation || null,
+      caseworker_designation: newLetter.caseworkerDesignation || null,
       prepared_date: newLetter.preparedDate || now,
       print_status: newLetter.printStatus || 'Pending Print',
       is_printed: newLetter.isPrinted ? 1 : 0,
@@ -1321,6 +1320,17 @@ ${letter.bodyText || 'ಯಾವುದೇ ವಿವರಣೆ ನಮೂದಿಸ�
       fileCode: file.fileCode,
       filePath: diskPath
     };
+  }
+
+  /**
+   * Alias for createLetterInFile
+   */
+  public addLetterToFile(fileIdOrNumber: string, letterData: Partial<EducationLetter>) {
+    const file = this.getFileById(fileIdOrNumber);
+    return this.createLetterInFile({
+      ...letterData,
+      fileNumber: file ? file.fileNumber : fileIdOrNumber
+    });
   }
 
   /**

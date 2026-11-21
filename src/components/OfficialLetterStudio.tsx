@@ -1610,10 +1610,10 @@ export const OfficialLetterStudio: React.FC<OfficialLetterStudioProps> = ({
                           ಶಾಲಾ ಶಿಕ್ಷಣ ಮತ್ತು ಸಾಕ್ಷರತಾ ಇಲಾಖೆ
                         </p>
                         <p className="font-bold text-sm text-stone-900">
-                          ಕ್ಷೇತ್ರ ಶಿಕ್ಷಣಾಧಿಕಾರಿಗಳ ಕಛೇರಿ, ಭದ್ರಾವತಿ
+                          ಕ್ಷೇತ್ರ ಶಿಕ್ಷಣಾಧಿಕಾರಿಗಳ ಕಛೇರಿ, ಭದ್ರಾವತಿ ತಾಲ್ಲೂಕು
                         </p>
                         <p className="font-bold text-xs text-stone-800">
-                          ಬಿ.ಹೆಚ್. ರಸ್ತೆ, ಹಳೇನಗರ, ಭದ್ರಾವತಿ, ಶಿವಮೊಗ್ಗ ಜಿಲ್ಲೆ - 577301
+                          ಬಿ.ಹೆಚ್. ರಸ್ತೆ, ಹಳೇನಗರ, ಭದ್ರಾವತಿ, ಶಿವಮೊಗ್ಗ ಜಿಲ್ಲೆ – 577301
                         </p>
                       </div>
                     )}
@@ -1683,14 +1683,12 @@ export const OfficialLetterStudio: React.FC<OfficialLetterStudioProps> = ({
                     <div className="flex justify-end pt-8 pb-6">
                       <div className="text-center min-w-[240px] text-xs space-y-1">
                         <div className="h-10"></div>
-                        <p className="font-extrabold text-stone-950">
-                          ({generatedLetter.signatory?.name || fallbackSignatoryName})
+                        <p className="text-xs text-stone-600 mb-2">ತಮ್ಮ ನಂಬುಗೆಯ,</p>
+                        <p className="font-extrabold text-stone-950 text-sm">
+                          ಕ್ಷೇತ್ರ ಶಿಕ್ಷಣಾಧಿಕಾರಿಗಳು
                         </p>
                         <p className="font-bold text-stone-900">
-                          {generatedLetter.signatory?.designation || fallbackSignatoryDesig}
-                        </p>
-                        <p className="font-semibold text-stone-700 text-[11px]">
-                          {generatedLetter.signatory?.office || fallbackSignatoryOffice}
+                          ಭದ್ರಾವತಿ ತಾಲ್ಲೂಕು
                         </p>
                       </div>
                     </div>

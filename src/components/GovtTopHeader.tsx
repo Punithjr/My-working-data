@@ -3,8 +3,6 @@ import {
   Search, 
   Settings, 
   Power, 
-  Wifi, 
-  WifiOff, 
   Clock, 
   User, 
   ChevronDown, 
@@ -12,7 +10,6 @@ import {
   FileText,
   FolderGit2,
   Users,
-  ShieldCheck,
   Menu,
   X,
   Languages
@@ -31,6 +28,9 @@ interface GovtTopHeaderProps {
   files: MasterDocketFile[];
   letters: EducationLetter[];
   employees: Employee[];
+  onOpenGitHubCommits?: () => void;
+  lang?: 'kn' | 'en';
+  onToggleLang?: () => void;
 }
 
 export const GovtTopHeader: React.FC<GovtTopHeaderProps> = ({
@@ -45,8 +45,11 @@ export const GovtTopHeader: React.FC<GovtTopHeaderProps> = ({
   files,
   letters,
   employees,
+  onOpenGitHubCommits,
+  lang = 'kn',
+  onToggleLang,
 }) => {
-  // Live network status
+  // Live network status (PWA offline detection)
   const [isOnline, setIsOnline] = useState<boolean>(() => {
     return typeof navigator !== 'undefined' ? navigator.onLine : true;
   });
@@ -59,7 +62,6 @@ export const GovtTopHeader: React.FC<GovtTopHeaderProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
-  const [lang, setLang] = useState<'kn' | 'en'>('kn');
 
   const userDropdownRef = useRef<HTMLDivElement>(null);
   const searchBoxRef = useRef<HTMLDivElement>(null);
@@ -74,7 +76,7 @@ export const GovtTopHeader: React.FC<GovtTopHeaderProps> = ({
     const updateClock = () => {
       const now = new Date();
       setTimeString(now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }));
-      setDateString(now.toLocaleDateString('kn-IN', { day: '2-digit', month: 'short', year: 'numeric' }));
+      setDateString(now.toLocaleDateString(lang === 'kn' ? 'kn-IN' : 'en-IN', { day: '2-digit', month: 'short', year: 'numeric' }));
     };
     updateClock();
     const timer = setInterval(updateClock, 10000);
@@ -95,9 +97,9 @@ export const GovtTopHeader: React.FC<GovtTopHeaderProps> = ({
       clearInterval(timer);
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
+  }, [lang]);
 
-  // Global search matching
+  // Global search matching across real database files, letters, and employees
   const searchResults = React.useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     if (!q || q.length < 2) return null;
@@ -129,14 +131,13 @@ export const GovtTopHeader: React.FC<GovtTopHeaderProps> = ({
   );
 
   return (
-    <header className="sticky top-0 z-40 w-full h-[72px] bg-gradient-to-r from-[#071326] via-[#0d2240] to-[#152e54] border-b border-[#21436e]/70 shadow-md text-white select-none no-print">
+    <header className="sticky top-0 z-40 w-full h-[72px] bg-gradient-to-r from-[#061429] via-[#0b2140] to-[#122e54] border-b border-[#1b3a66] shadow-md text-white select-none no-print">
       {/* Background Vidhana Soudha Faded Silhouette */}
       <div 
-        className="absolute inset-0 pointer-events-none opacity-[0.08] overflow-hidden mix-blend-screen"
+        className="absolute inset-0 pointer-events-none opacity-[0.06] overflow-hidden mix-blend-screen"
         aria-hidden="true"
       >
         <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="w-full h-full text-amber-200 fill-current">
-          {/* Stylized Dome and Pillars of Vidhana Soudha */}
           <path d="M0,120 L0,90 L200,90 L200,60 L230,60 L230,40 L260,40 L260,30 L290,30 L290,15 L300,5 L310,15 L310,30 L340,30 L340,40 L370,40 L370,60 L400,60 L400,90 L600,90 L600,40 L650,40 L650,20 L665,2 L680,20 L680,40 L730,40 L730,90 L950,90 L950,60 L980,60 L980,40 L1010,40 L1010,30 L1040,30 L1040,15 L1050,5 L1060,15 L1060,30 L1090,30 L1090,40 L1120,40 L1120,60 L1150,60 L1150,90 L1200,90 L1200,120 Z" />
         </svg>
       </div>
@@ -162,20 +163,15 @@ export const GovtTopHeader: React.FC<GovtTopHeaderProps> = ({
           >
             <div className="w-11 h-11 rounded-full bg-gradient-to-b from-amber-400 via-amber-300 to-amber-500 p-0.5 shadow-[0_0_12px_rgba(245,158,11,0.35)] shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform">
               <div className="w-full h-full rounded-full bg-[#0a1b33] flex items-center justify-center p-1 border border-amber-300/40">
-                {/* Karnataka Gandaberunda / Ashoka Emblem SVG representation */}
                 <svg viewBox="0 0 100 100" className="w-full h-full fill-amber-300 text-amber-400 drop-shadow">
-                  {/* Outer circle */}
                   <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" strokeWidth="2.5" />
-                  {/* Two Headed Eagle Gandaberunda / Karnataka State Seal */}
                   <path d="M50 16 L53 23 L60 23 L54 28 L57 35 L50 31 L43 35 L46 28 L40 23 L47 23 Z" fill="#fbbf24" />
                   <path d="M50 35 C38 35 30 46 30 58 C30 70 38 78 50 82 C62 78 70 70 70 58 C70 46 62 35 50 35 Z" fill="#b45309" stroke="#fef08a" strokeWidth="1.5" />
                   <circle cx="50" cy="56" r="14" fill="#1e3a8a" stroke="#fbbf24" strokeWidth="2" />
-                  {/* Ashoka Chakra spokes */}
                   <line x1="50" y1="44" x2="50" y2="68" stroke="#fbbf24" strokeWidth="1.5" />
                   <line x1="38" y1="56" x2="62" y2="56" stroke="#fbbf24" strokeWidth="1.5" />
                   <line x1="41" y1="47" x2="59" y2="65" stroke="#fbbf24" strokeWidth="1.5" />
                   <line x1="41" y1="65" x2="59" y2="47" stroke="#fbbf24" strokeWidth="1.5" />
-                  {/* Wings */}
                   <path d="M22 45 C15 52 14 65 24 73 C26 68 28 62 33 58 Z" fill="#fbbf24" />
                   <path d="M78 45 C85 52 86 65 76 73 C74 68 72 62 67 58 Z" fill="#fbbf24" />
                 </svg>
@@ -183,15 +179,20 @@ export const GovtTopHeader: React.FC<GovtTopHeaderProps> = ({
             </div>
 
             {/* Thin vertical divider */}
-            <div className="w-[1.5px] h-9 bg-white/25 hidden sm:block"></div>
+            <div className="w-[1.5px] h-9 bg-white/20 hidden sm:block"></div>
 
             {/* Office Title in Bold White Kannada */}
             <div className="flex flex-col text-left">
-              <h1 className="font-extrabold text-white text-sm sm:text-base md:text-lg tracking-tight font-kannada leading-tight drop-shadow-xs group-hover:text-amber-200 transition-colors">
-                ಕ್ಷೇತ್ರ ಶಿಕ್ಷಣಾಧಿಕಾರಿಗಳ ಕಚೇರಿ, ಭದ್ರಾವತಿ
-              </h1>
+              <div className="flex items-center gap-2">
+                <h1 className="font-extrabold text-white text-sm sm:text-base md:text-lg tracking-tight font-kannada leading-tight drop-shadow-xs group-hover:text-amber-200 transition-colors">
+                  {lang === 'kn' ? 'ಕ್ಷೇತ್ರ ಶಿಕ್ಷಣಾಧಿಕಾರಿಗಳ ಕಚೇರಿ, ಭದ್ರಾವತಿ' : 'Office of the Block Education Officer, Bhadravathi'}
+                </h1>
+                <span className="hidden lg:inline-block px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-400/20 text-amber-300 border border-amber-400/30">
+                  ARYA-PUNITH
+                </span>
+              </div>
               <p className="text-[11px] text-amber-300/90 font-kannada font-medium tracking-wide hidden sm:block leading-tight">
-                ಶಾಲಾ ಶಿಕ್ಷಣ ಮತ್ತು ಸಾಕ್ಷರತಾ ಇಲಾಖೆ • ಶಿವಮೊಗ್ಗ ಜಿಲ್ಲೆ | ಇ-ಕಛೇರಿ ತಂತ್ರಾಂಶ
+                {lang === 'kn' ? 'ಶಾಲಾ ಶಿಕ್ಷಣ ಮತ್ತು ಸಾಕ್ಷರತಾ ಇಲಾಖೆ • ಶಿವಮೊಗ್ಗ ಜಿಲ್ಲೆ | ಇ-ಕಛೇರಿ ತಂತ್ರಾಂಶ' : 'Department of School Education & Literacy • Shivamogga District'}
               </p>
             </div>
           </div>
@@ -206,14 +207,14 @@ export const GovtTopHeader: React.FC<GovtTopHeaderProps> = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => setIsSearchFocused(true)}
-              placeholder="ಕಡತ, ಪತ್ರ, ಸುತ್ತೋಲೆ, ನೌಕರರ ಹುಡುಕಾಟ..."
-              className="w-full bg-[#0a1b33]/85 text-white placeholder-stone-400 text-xs pl-9 pr-3 py-2 rounded-xl border border-sky-400/30 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/20 font-kannada transition-all"
+              placeholder={lang === 'kn' ? 'ಕಡತ, ಪತ್ರ, ಸುತ್ತೋಲೆ, ನೌಕರರ ಹುಡುಕಾಟ...' : 'Search files, letters, circulars, employees...'}
+              className="w-full bg-[#081930]/90 text-white placeholder-stone-400 text-xs pl-9 pr-3 py-2 rounded-xl border border-sky-400/30 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/20 font-kannada transition-all"
             />
           </div>
 
           {/* Search Results Dropdown */}
           {isSearchFocused && hasResults && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-[#0d2240] border border-sky-500/30 rounded-xl shadow-2xl overflow-hidden z-50 text-xs">
+            <div className="absolute top-full left-0 right-0 mt-2 bg-[#0b2140] border border-sky-500/30 rounded-xl shadow-2xl overflow-hidden z-50 text-xs">
               {searchResults.files.length > 0 && (
                 <div className="p-2 border-b border-white/10">
                   <div className="text-[10px] uppercase font-bold text-amber-400 px-2 py-0.5">ಕಡತಗಳು (Files)</div>
@@ -298,8 +299,8 @@ export const GovtTopHeader: React.FC<GovtTopHeaderProps> = ({
           {/* Language Toggle */}
           <button
             type="button"
-            onClick={() => setLang(prev => prev === 'kn' ? 'en' : 'kn')}
-            className="hidden sm:flex items-center gap-1 px-2 py-1 rounded-lg bg-white/10 hover:bg-white/15 text-stone-200 text-xs font-bold border border-white/15 cursor-pointer transition-colors"
+            onClick={onToggleLang}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-stone-200 text-xs font-bold border border-white/15 cursor-pointer transition-colors"
             title="ಭಾಷೆ ಬದಲಿಸಿ / Toggle Language"
           >
             <Languages className="w-3.5 h-3.5 text-amber-300" />
@@ -311,7 +312,7 @@ export const GovtTopHeader: React.FC<GovtTopHeaderProps> = ({
             <button
               type="button"
               onClick={onOpenAiChat}
-              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-600 hover:to-indigo-600 text-white text-xs font-bold border border-purple-400/40 cursor-pointer shadow-xs transition-all hover:scale-105"
+              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-600 hover:to-indigo-600 text-white text-xs font-bold border border-purple-400/40 cursor-pointer shadow-xs transition-all hover:scale-105"
               title="KCSR & RTI AI ಸಹಾಯಕ (Gemini 3.8 Flash)"
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
@@ -331,7 +332,7 @@ export const GovtTopHeader: React.FC<GovtTopHeaderProps> = ({
               </div>
               <div className="text-left hidden sm:block leading-tight">
                 <span className="block font-kannada text-xs font-bold max-w-[120px] truncate">
-                  {currentUser?.displayName || 'ಕೇಸ್‌ವರ್ಕರ್ ಲಾಗಿನ್'}
+                  {currentUser?.displayName || 'ಕೇಸ್‌ವರ್ಕರ್'}
                 </span>
                 <span className="block text-[10px] text-amber-300 font-mono">
                   {currentUser?.role || 'Case Worker'}

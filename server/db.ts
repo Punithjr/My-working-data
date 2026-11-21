@@ -84,7 +84,7 @@ export interface DbOrderType {
   id: string;
   nameKannada: string;
   nameEnglish: string;
-  category: 'leave' | 'increment' | 'advancement';
+  category: 'leave' | 'increment' | 'advancement' | 'office_order';
   description: string;
   isActive: boolean;
   minServiceYears?: number;
@@ -141,6 +141,7 @@ export interface DbMemorandumOrder {
     balanceBefore?: number;
     balanceAfter?: number;
   };
+  officeOrderDetails?: any;
   signatoryName: string;
   signatoryDesignation: string;
   copiesForwardedTo: string[];
@@ -523,6 +524,54 @@ const DEFAULT_ORDER_TYPES: DbOrderType[] = [
     nameEnglish: 'Paternity Leave',
     category: 'leave',
     description: 'ವಿವಾಹಿತ ಪುರುಷ ಸರ್ಕಾರಿ ನೌಕರರಿಗೆ ಮಗುವಿನ ಜನನದ ಸಂದರ್ಭದಲ್ಲಿ ಕೆಸಿಎಸ್ಆರ್ ನಿಯಮ 135-A ರನ್ವಯ 15 ದಿನಗಳ ಪಿತೃತ್ವ ರಜೆ ಮಂಜೂರಾತಿ ಜ್ಞಾಪನ',
+    isActive: true,
+  },
+  {
+    id: 'ot-gpf-advance',
+    nameKannada: 'GPF ಮುಂಗಡ ಕಛೇರಿ ಆದೇಶ',
+    nameEnglish: 'GPF Temporary Advance Office Order',
+    category: 'office_order',
+    description: 'ಕೆ.ಜಿ.ಪಿ.ಎಫ್ ನಿಯಮಾವಳಿಗಳಂತೆ ವೈದ್ಯಕೀಯ / ವಿವಾಹ / ವಿದ್ಯಾಭ್ಯಾಸ ನಿಮಿತ್ತ ಜಿ.ಪಿ.ಎಫ್ ತಾತ್ಕಾಲಿಕ ಮುಂಗಡ ಮಂಜೂರಾತಿ ಹಾಗೂ ಕಂತುಗಳ ಕಡಿತ ಕಛೇರಿ ಆದೇಶ',
+    isActive: true,
+  },
+  {
+    id: 'ot-gpf-partial-withdrawal',
+    nameKannada: 'GPF ಭಾಗಶಃ ಅಂತಿಮ ಹಿಂಪಡೆಯುವಿಕೆ ಕಛೇರಿ ಆದೇಶ',
+    nameEnglish: 'GPF Non-Refundable / Partial Final Withdrawal Office Order',
+    category: 'office_order',
+    description: 'ಕೆ.ಜಿ.ಪಿ.ಎಫ್ ನಿಯಮಾವಳಿ 13 ರಂತೆ ಗೃಹ ನಿರ್ಮಾಣ / ಜಮೀನು ಖರೀದಿ / ಉನ್ನತ ವಿದ್ಯಾಭ್ಯಾಸಕ್ಕಾಗಿ ಜಿ.ಪಿ.ಎಫ್ ಭಾಗಶಃ ಅಂತಿಮ ಹಿಂಪಡೆಯುವಿಕೆ ಕಛೇರಿ ಆದೇಶ',
+    isActive: true,
+  },
+  {
+    id: 'ot-annual-increment-order',
+    nameKannada: 'ವಾರ್ಷಿಕ ವೇತನ ಬಡ್ತಿ ಕಛೇರಿ ಆದೇಶ',
+    nameEnglish: 'Annual Increment Office Order',
+    category: 'increment',
+    description: 'ಕೆಸಿಎಸ್ಆರ್ ನಿಯಮ 51 ರನ್ವಯ ನೌಕರರಿಗೆ ನಿಗದಿತ ವಾರ್ಷಿಕ ವೇತನ ಬಡ್ತಿ ಮಂಜೂರಾತಿ ಕಛೇರಿ ಆದೇಶ',
+    isActive: true,
+  },
+  {
+    id: 'ot-incharge-allowance',
+    nameKannada: 'ಹೆಚ್ಚುವರಿ ಪ್ರಭಾರ / ಪ್ರಭಾರ ಭತ್ಯೆ ಕಛೇರಿ ಆದೇಶ',
+    nameEnglish: 'In-charge Allowance Office Order',
+    category: 'office_order',
+    description: 'ಕೆಸಿಎಸ್ಆರ್ ನಿಯಮ 32 ಮತ್ತು 68 ರಂತೆ ಶಾಲೆ / ಕಚೇರಿಯ ಪ್ರಭಾರ ವಹಿಸುವಿಕೆ ಹಾಗೂ ಪ್ರಭಾರ ಭತ್ಯೆ ಮಂಜೂರಾತಿ ಕಛೇರಿ ಆದೇಶ',
+    isActive: true,
+  },
+  {
+    id: 'ot-deputation-order',
+    nameKannada: 'ಕರ್ತವ್ಯ ನಿಯೋಜನೆ / ಸ್ಥಳ ನಿಯೋಜನೆ ಕಛೇರಿ ಆದೇಶ',
+    nameEnglish: 'Duty Deputation Office Order',
+    category: 'office_order',
+    description: 'ಶೈಕ್ಷಣಿಕ ಅಥವಾ ಆಡಳಿತಾತ್ಮಕ ಹಿತದೃಷ್ಟಿಯಿಂದ ತಾತ್ಕಾಲಿಕ ಕರ್ತವ್ಯ ನಿಯೋಜನೆ ಕಛೇರಿ ಆದೇಶ',
+    isActive: true,
+  },
+  {
+    id: 'ot-general-office-order',
+    nameKannada: 'ಸಾಮಾನ್ಯ ಕಛೇರಿ ಆದೇಶ',
+    nameEnglish: 'General Office Order',
+    category: 'office_order',
+    description: 'ನೌಕರರ ಸೇವಾ ವಿಷಯಗಳು, ಕರ್ತವ್ಯ ಹಂಚಿಕೆ ಹಾಗೂ ಕಚೇರಿ ಆಡಳಿತಾತ್ಮಕ ಸಾಮಾನ್ಯ ಕಛೇರಿ ಆದೇಶ',
     isActive: true,
   },
 ];
@@ -2090,27 +2139,62 @@ class RelationalDatabase {
     const appDateVal = (orderData as any).applicationDate || (orderData.leaveDetails as any)?.applicationDate || orderDate;
     const certDetails = (orderData as any).birthCertificateDetails || (orderData.leaveDetails as any)?.birthCertificateDetails || 'ಜನನ ಪ್ರಮಾಣಪತ್ರ';
 
-    const typeCode = isPaternity
+    const gpfDetails = (orderData as any).officeOrderDetails || {};
+    const gpfAcc = gpfDetails.gpfAccountNo || (employee as any).gpfNumber || `EDN-BHD-GPF-${cleanKgid}`;
+    const gpfAdvAmt = Number(gpfDetails.gpfAdvanceAmount) || 50000;
+    const gpfInstCount = Number(gpfDetails.installmentCount) || 24;
+    const gpfInstAmt = Number(gpfDetails.installmentAmount) || Math.ceil(gpfAdvAmt / gpfInstCount);
+    const gpfStartMonth = gpfDetails.recoveryStartMonth || 'ಮುಂದಿನ ಮಾಹೆಯ ವೇತನದಿಂದ';
+    const gpfWithAmt = Number(gpfDetails.gpfWithdrawalAmount) || 200000;
+    const gpfCreditBal = Number(gpfDetails.gpfCreditBalance) || 500000;
+    const orderPurpose = gpfDetails.purpose || (orderData as any).officialRemarks || 'ಅಗತ್ಯ ವೈದ್ಯಕೀಯ ಚಿಕಿತ್ಸೆ / ವಿದ್ಯಾಭ್ಯಾಸ';
+
+    const isGpfAdvance = orderTypeName.includes('GPF ಮುಂಗಡ') || gpfDetails.orderCategory === 'gpf_advance';
+    const isGpfPartial = orderTypeName.includes('GPF ಭಾಗಶಃ') || gpfDetails.orderCategory === 'gpf_partial';
+    const isIncharge = orderTypeName.includes('ಪ್ರಭಾರ') || gpfDetails.orderCategory === 'incharge';
+    const isDeputation = orderTypeName.includes('ನಿಯೋಜನೆ') || gpfDetails.orderCategory === 'deputation';
+    const isAnnualInc = orderTypeName.includes('ವಾರ್ಷಿಕ ವೇತನ ಬಡ್ತಿ') || gpfDetails.orderCategory === 'annual_increment';
+    const isOfficeOrder = orderTypeName.includes('ಕಛೇರಿ ಆದೇಶ') || orderTypeName.includes('ಕಚೇರಿ ಆದೇಶ') || isGpfAdvance || isGpfPartial || isIncharge || isDeputation || isAnnualInc;
+
+    const typeCode = isGpfAdvance ? 'GPF-ADV' : isGpfPartial ? 'GPF-PF' : isPaternity
       ? 'PL'
       : (orderTypeName.includes('ರಜೆ')
         ? (orderTypeName.includes('ಗಳಿಕೆ') ? 'EL' : 'CCL')
         : (orderTypeName.replace(/[^0-9]/g, '') || 'INC') + 'Y');
     const fileId = `FILE-${new Date().getFullYear()}/SR-${typeCode}/${cleanKgid}`;
 
-    const ruleRef = isPaternity
+    const ruleRef = isGpfAdvance
+      ? 'ಕರ್ನಾಟಕ ಸಾಮಾನ್ಯ ಭವಿಷ್ಯ ನಿಧಿ ನಿಯಮಾವಳಿಗಳು (KGPF Rules 10 & 12).'
+      : isGpfPartial
+      ? 'ಕರ್ನಾಟಕ ಸಾಮಾನ್ಯ ಭವಿಷ್ಯ ನಿಧಿ ನಿಯಮಾವಳಿಗಳು (KGPF Rule 13 - Non-Refundable Withdrawal).'
+      : isIncharge
+      ? 'ಕರ್ನಾಟಕ ನಾಗರಿಕ ಸೇವಾ ನಿಯಮಗಳು (KCSRs) ನಿಯಮ 32 ಮತ್ತು 68 (Charge Allowance).'
+      : isAnnualInc
+      ? 'ಕರ್ನಾಟಕ ನಾಗರಿಕ ಸೇವಾ ನಿಯಮಗಳು (KCSRs) ನಿಯಮ 51 (Annual Regular Increment).'
+      : isPaternity
       ? 'ಕರ್ನಾಟಕ ನಾಗರಿಕ ಸೇವಾ ನಿಯಮಗಳು (KCSRs) ನಿಯಮ 135-ಎ ಹಾಗೂ ಸರ್ಕಾರಿ ಆದೇಶ ಸಂ: ಆಇ 4 ಎಸ್ಆರ್ಎಸ್ 99 ದಿನಾಂಕ: 08-02-1999.'
       : (calc.payRule?.governmentOrderRef || 'ಕರ್ನಾಟಕ ನಾಗರಿಕ ಸೇವಾ ನಿಯಮಗಳು (KCSRs) ಮತ್ತು ಸರ್ಕಾರದ ಅಧಿಕೃತ ಆದೇಶಗಳು.');
 
     // Generate Official Kannada Memorandum Order Text
-    const preambleText = isPaternity
-      ? `ಭದ್ರಾವತಿ ಶೈಕ್ಷಣಿಕ ವಲಯದ ವ್ಯಾಪ್ತಿಯಲ್ಲಿರುವ ${employee.officeLocation} ಇಲ್ಲಿ ಕರ್ತವ್ಯ ನಿರ್ವಹಿಸುತ್ತಿರುವ ಶ್ರೀ ${employee.fullName}, ${employee.designation} (KGID: ${employee.kgidNumber}) ಇವರು ತಮ್ಮ ${childOrderVal}ಯ ಜನನದ (ದಿನಾಂಕ: ${childDobVal || 'ಲಭ್ಯವಿಲ್ಲ'}) ಪ್ರಯುಕ್ತ ದಿನಾಂಕ: ${appDateVal} ರಂದು ಅರ್ಜಿ ಸಲ್ಲಿಸಿ, ದಿನಾಂಕ: ${orderData.leaveDetails?.leaveFrom || today} ರಿಂದ ${orderData.leaveDetails?.leaveTo || today} ರವರೆಗೆ ಒಟ್ಟು ${orderData.leaveDetails?.totalDays || 15} ದಿನಗಳ ಪಿತೃತ್ವ ರಜೆ (Paternity Leave) ಮಂಜೂರು ಮಾಡಲು ಕೋರಿರುತ್ತಾರೆ. ಅರ್ಜಿಯೊಂದಿಗೆ ಮಗುವಿನ ಜನನ ಪ್ರಮಾಣಪತ್ರ / ಆಸ್ಪತ್ರೆ ದಾಖಲೆಯನ್ನು (${certDetails}) ಲಗತ್ತಿಸಿರುತ್ತಾರೆ. ಅರ್ಜಿದಾರರು 2ಕ್ಕಿಂತ ಕಡಿಮೆ ಜೀವಂತ ಮಕ್ಕಳನ್ನು ಹೊಂದಿರುವ ವಿವಾಹಿತ ಪುರುಷ ಸರ್ಕಾರಿ ನೌಕರರಾಗಿದ್ದು, ಕೆಸಿಎಸ್ಆರ್ ನಿಯಮ 135-ಎ ಹಾಗೂ ಸರ್ಕಾರಿ ಆದೇಶ ಸಂಖ್ಯೆ: ಆಇ 4 ಎಸ್ಆರ್ಎಸ್ 99 ದಿನಾಂಕ: 08-02-1999 ರನ್ವಯ ಅರ್ಹತೆಯನ್ನು ಪರಿಶೀಲಿಸಿ, ಕೆಳಕಂಡಂತೆ ಜ್ಞಾಪನಾ ಆದೇಶ ಹೊರಡಿಸಲಾಗಿದೆ.`
-      : `ಭದ್ರಾವತಿ ಶೈಕ್ಷಣಿಕ ವಲಯದ ವ್ಯಾಪ್ತಿಯಲ್ಲಿರುವ ${employee.officeLocation} ಇಲ್ಲಿ ಕರ್ತವ್ಯ ನಿರ್ವಹಿಸುತ್ತಿರುವ ಶ್ರೀ/ಶ್ರೀಮತಿ ${employee.fullName}, ${employee.designation} ಇವರು ನಿಯಮಾನುಸಾರ ${orderTypeName} ಮಂಜೂರು ಮಾಡುವಂತೆ ಕೋರಿ ಪ್ರಸ್ತಾವನೆ ಸಲ್ಲಿಸಿರುತ್ತಾರೆ. ಸದರಿಯವರ ಸೇವಾ ಪುಸ್ತಕವನ್ನು ಕೂಲಂಕಷವಾಗಿ ಪರಿಶೀಲಿಸಲಾಗಿ, ಅರ್ಹತಾ ಸೇವಾವಧಿಯು ತೃಪ್ತಿಕರವಾಗಿದ್ದು ಯಾವುದೇ ಇಲಾಖಾ ವಿಚಾರಣೆ ಬಾಕಿ ಇರುವುದಿಲ್ಲವೆಂದು ದೃಢೀಕರಿಸಿ, ಕೆಳಕಂಡಂತೆ ಜ್ಞಾಪನಾ ಆದೇಶ ಹೊರಡಿಸಲಾಗಿದೆ.`;
+    let preambleText = '';
+    let orderBodyText = '';
 
-    const orderBodyText = isPaternity
-      ? `ಶ್ರೀ ${employee.fullName}, ${employee.designation}, ${employee.officeLocation} ಇವರಿಗೆ ತಮ್ಮ ${childOrderVal}ಯ ಜನನದ ನಿಮಿತ್ತ ದಿನಾಂಕ: ${orderData.leaveDetails?.leaveFrom || today} ರಿಂದ ${orderData.leaveDetails?.leaveTo || today} ರವರೆಗೆ ಒಟ್ಟು ${orderData.leaveDetails?.totalDays || 15} ದಿನಗಳ ಪಿತೃತ್ವ ರಜೆಯನ್ನು (Paternity Leave) ಕರ್ನಾಟಕ ನಾಗರಿಕ ಸೇವಾ ನಿಯಮಾವಳಿಗಳು (KCSRs) ನಿಯಮ 135-ಎ ಹಾಗೂ ಸರ್ಕಾರಿ ಆದೇಶ ಸಂ: ಆಇ 4 ಎಸ್ಆರ್ಎಸ್ 99 ದಿನಾಂಕ: 08-02-1999 ರನ್ವಯ ಕರ್ತವ್ಯದ ಮೇಲಿರುವಂತೆ ಪೂರ್ಣ ವೇತನ ಮತ್ತು ಭತ್ಯೆಗಳೊಂದಿಗೆ ಮಂಜೂರು ಮಾಡಲಾಗಿದೆ.`
-      : (isLeave
-        ? `ಶ್ರೀ/ಶ್ರೀಮತಿ ${employee.fullName}, ${employee.designation} ಇವರಿಗೆ ದಿನಾಂಕ: ${orderData.leaveDetails?.leaveFrom || today} ರಿಂದ ${orderData.leaveDetails?.leaveTo || today} ರವರೆಗೆ ಒಟ್ಟು ${orderData.leaveDetails?.totalDays || 1} ದಿನಗಳ ${orderTypeName}ಯನ್ನು ಕೆಸಿಎಸ್ಆರ್ ನಿಯಮಾವಳಿಗಳ ಅನ್ವಯ ಮಂಜೂರು ಮಾಡಲಾಗಿದೆ.`
-        : `ಶ್ರೀ/ಶ್ರೀಮತಿ ${employee.fullName}, ${employee.designation} ಇವರ ಪ್ರಸ್ತುತ ಮೂಲ ವೇತನ ₹${oldBasic.toLocaleString('en-IN')}/- (ವೇತನ ಶ್ರೇಣಿ: ${employee.payScale}) ಗೆ ದಿನಾಂಕ: ${effectiveDate} ರಿಂದ ಜಾರಿಗೆ ಬರುವಂತೆ ₹${incrementAmt.toLocaleString('en-IN')}/- ವೇತನ ಬಡ್ತಿಯನ್ನು ಮಂಜೂರು ಮಾಡಿ, ಇವರ ನೂತನ ಮೂಲ ವೇತನವನ್ನು ₹${newBasic.toLocaleString('en-IN')}/- ಗೆ ಪರಿಷ್ಕರಿಸಿ ನಿಗದಿಪಡಿಸಲಾಗಿದೆ.`);
+    if (isGpfAdvance) {
+      preambleText = `ಭದ್ರಾವತಿ ಶೈಕ್ಷಣಿಕ ವಲಯದ ${employee.officeLocation} ಇಲ್ಲಿ ಕರ್ತವ್ಯ ನಿರ್ವಹಿಸುತ್ತಿರುವ ಶ್ರೀ/ಶ್ರೀಮತಿ ${employee.fullName}, ${employee.designation} (KGID: ${employee.kgidNumber}, GPF ಖಾತೆ ಸಂಖ್ಯೆ: ${gpfAcc}) ಇವರು ತಮ್ಮ ${orderPurpose} ನಿಮಿತ್ತ ₹${gpfAdvAmt.toLocaleString('en-IN')}/- ಗಳ ತಾತ್ಕಾಲಿಕ ಜಿ.ಪಿ.ಎಫ್ ಮುಂಗಡ ಮಂಜೂರಾತಿ ಕೋರಿ ಅರ್ಜಿ ಸಲ್ಲಿಸಿರುತ್ತಾರೆ. ಕೆ.ಜಿ.ಪಿ.ಎಫ್ ನಿಯಮಾವಳಿ 10 ಮತ್ತು 12 ರನ್ವಯ ಅರ್ಹತೆಯನ್ನು ಪರಿಶೀಲಿಸಲಾಗಿ, ನೌಕರರ ಪ್ರಸ್ತಾವನೆಯು ಸಮರ್ಪಕವಾಗಿದ್ದು ನಿಯಮಾನುಸಾರ ಮುಂಗಡ ಮಂಜೂರಾತಿಗೆ ಅರ್ಹತೆ ಹೊಂದಿರುವುದರಿಂದ ಕೆಳಕಂಡಂತೆ ಕಛೇರಿ ಆದೇಶ ಹೊರಡಿಸಲಾಗಿದೆ.`;
+      orderBodyText = `ಶ್ರೀ/ಶ್ರೀಮತಿ ${employee.fullName}, ${employee.designation}, ${employee.officeLocation} ಇವರಿಗೆ ತಮ್ಮ ${orderPurpose} ನಿಮಿತ್ತ ₹${gpfAdvAmt.toLocaleString('en-IN')}/- (ರೂಪಾಯಿ ಐವತ್ತು ಸಾವಿರ ಮಾತ್ರ) ಗಳ ತಾತ್ಕಾಲಿಕ ಜಿ.ಪಿ.ಎಫ್ ಮುಂಗಡವನ್ನು (GPF Temporary Advance) ಕರ್ನಾಟಕ ಸಾಮಾನ್ಯ ಭವಿಷ್ಯ ನಿಧಿ ನಿಯಮಾವಳಿಗಳ ಅನ್ವಯ ಮಂಜೂರು ಮಾಡಲಾಗಿದೆ. ಸದರಿ ಮುಂಗಡ ಮೊತ್ತವನ್ನು ನೌಕರರ ಮಾಸಿಕ ವೇತನದಲ್ಲಿ ತಲಾ ₹${gpfInstAmt.toLocaleString('en-IN')}/- ರಂತೆ ಒಟ್ಟು ${gpfInstCount} ಸಮಾನ ಮಾಸಿಕ ಕಂತುಗಳಲ್ಲಿ (${gpfStartMonth} ಮಾಹೆಯ ವೇತನದಿಂದ ಆರಂಭಿಸಿ) ಕಡಿತಗೊಳಿಸಿ ಸಂಬಂಧಿಸಿದ GPF ಲೆಕ್ಕ ಶೀರ್ಷಿಕೆಗೆ ಜಮೆ ಮಾಡತಕ್ಕದ್ದು.`;
+    } else if (isGpfPartial) {
+      preambleText = `ಭದ್ರಾವತಿ ಶೈಕ್ಷಣಿಕ ವಲಯದ ${employee.officeLocation} ಇಲ್ಲಿ ಕರ್ತವ್ಯ ನಿರ್ವಹಿಸುತ್ತಿರುವ ಶ್ರೀ/ಶ್ರೀಮತಿ ${employee.fullName}, ${employee.designation} (KGID: ${employee.kgidNumber}, GPF ಖಾತೆ ಸಂಖ್ಯೆ: ${gpfAcc}) ಇವರು ತಮ್ಮ ${orderPurpose} ನಿಮಿತ್ತ ಜಿ.ಪಿ.ಎಫ್ ಖಾತೆಯಲ್ಲಿನ ಶಿಲ್ಕಿನಿಂದ (ಒಟ್ಟು ಶಿಲ್ಕು: ₹${gpfCreditBal.toLocaleString('en-IN')}/-) ₹${gpfWithAmt.toLocaleString('en-IN')}/- ಗಳ ಭಾಗಶಃ ಅಂತಿಮ ಹಿಂಪಡೆಯುವಿಕೆ ಮಂಜೂರಾತಿ ಕೋರಿ ಅರ್ಜಿ ಸಲ್ಲಿಸಿರುತ್ತಾರೆ. ಕೆ.ಜಿ.ಪಿ.ಎಫ್ ನಿಯಮಾವಳಿ 13 ರನ್ವಯ ಅರ್ಹತೆಯನ್ನು ಪರಿಶೀಲಿಸಲಾಗಿ, ನೌಕರರು ನಿಗದಿತ ಸೇವಾ ಅವಧಿ ಪೂರೈಸಿದ್ದು, ಭಾಗಶಃ ಅಂತಿಮ ಮಂಜೂರಾತಿಗೆ ಅರ್ಹತೆ ಹೊಂದಿರುವುದರಿಂದ ಕೆಳಕಂಡಂತೆ ಕಛೇರಿ ಆದೇಶ ಹೊರಡಿಸಲಾಗಿದೆ.`;
+      orderBodyText = `ಶ್ರೀ/ಶ್ರೀಮತಿ ${employee.fullName}, ${employee.designation}, ${employee.officeLocation} ಇವರಿಗೆ ತಮ್ಮ ${orderPurpose} ನಿಮಿತ್ತ ಇವರ ಜಿ.ಪಿ.ಎಫ್ ಖಾತೆಯಿಂದ (ಖಾತೆ ಸಂ: ${gpfAcc}) ₹${gpfWithAmt.toLocaleString('en-IN')}/- ಗಳನ್ನು ಕರ್ನಾಟಕ ಸಾಮಾನ್ಯ ಭವಿಷ್ಯ ನಿಧಿ ನಿಯಮಾವಳಿ 13 ರನ್ವಯ ಭಾಗಶಃ ಅಂತಿಮ ಸಂದಾಯವಾಗಿ (Non-Refundable / Partial Final Withdrawal) ಹಿಂಪಡೆಯಲು ಮಂಜೂರಾತಿ ನೀಡಿ ಆದೇಶಿಸಿದೆ. ನಿಯಮಾನುಸಾರ ಈ ಮೊತ್ತವನ್ನು ಸರ್ಕಾರಕ್ಕೆ ಮರುಪಾವತಿಸುವ ಅಗತ್ಯವಿರುವುದಿಲ್ಲ.`;
+    } else if (isPaternity) {
+      preambleText = `ಭದ್ರಾವತಿ ಶೈಕ್ಷಣಿಕ ವಲಯದ ವ್ಯಾಪ್ತಿಯಲ್ಲಿರುವ ${employee.officeLocation} ಇಲ್ಲಿ ಕರ್ತವ್ಯ ನಿರ್ವಹಿಸುತ್ತಿರುವ ಶ್ರೀ ${employee.fullName}, ${employee.designation} (KGID: ${employee.kgidNumber}) ಇವರು ತಮ್ಮ ${childOrderVal}ಯ ಜನನದ (ದಿನಾಂಕ: ${childDobVal || 'ಲಭ್ಯವಿಲ್ಲ'}) ಪ್ರಯುಕ್ತ ದಿನಾಂಕ: ${appDateVal} ರಂದು ಅರ್ಜಿ ಸಲ್ಲಿಸಿ, ದಿನಾಂಕ: ${orderData.leaveDetails?.leaveFrom || today} ರಿಂದ ${orderData.leaveDetails?.leaveTo || today} ರವರೆಗೆ ಒಟ್ಟು ${orderData.leaveDetails?.totalDays || 15} ದಿನಗಳ ಪಿತೃತ್ವ ರಜೆ (Paternity Leave) ಮಂಜೂರು ಮಾಡಲು ಕೋರಿರುತ್ತಾರೆ. ಅರ್ಜಿಯೊಂದಿಗೆ ಮಗುವಿನ ಜನನ ಪ್ರಮಾಣಪತ್ರ / ಆಸ್ಪತ್ರೆ ದಾಖಲೆಯನ್ನು (${certDetails}) ಲಗತ್ತಿಸಿರುತ್ತಾರೆ. ಅರ್ಜಿದಾರರು 2ಕ್ಕಿಂತ ಕಡಿಮೆ ಜೀವಂತ ಮಕ್ಕಳನ್ನು ಹೊಂದಿರುವ ವಿವಾಹಿತ ಪುರುಷ ಸರ್ಕಾರಿ ನೌಕರರಾಗಿದ್ದು, ಕೆಸಿಎಸ್ಆರ್ ನಿಯಮ 135-ಎ ಹಾಗೂ ಸರ್ಕಾರಿ ಆದೇಶ ಸಂಖ್ಯೆ: ಆಇ 4 ಎಸ್ಆರ್ಎಸ್ 99 ದಿನಾಂಕ: 08-02-1999 ರನ್ವಯ ಅರ್ಹತೆಯನ್ನು ಪರಿಶೀಲಿಸಿ, ಕೆಳಕಂಡಂತೆ ಜ್ಞಾಪನಾ ಆದೇಶ ಹೊರಡಿಸಲಾಗಿದೆ.`;
+      orderBodyText = `ಶ್ರೀ ${employee.fullName}, ${employee.designation}, ${employee.officeLocation} ಇವರಿಗೆ ತಮ್ಮ ${childOrderVal}ಯ ಜನನದ ನಿಮಿತ್ತ ದಿನಾಂಕ: ${orderData.leaveDetails?.leaveFrom || today} ರಿಂದ ${orderData.leaveDetails?.leaveTo || today} ರವರೆಗೆ ಒಟ್ಟು ${orderData.leaveDetails?.totalDays || 15} ದಿನಗಳ ಪಿತೃತ್ವ ರಜೆಯನ್ನು (Paternity Leave) ಕರ್ನಾಟಕ ನಾಗರಿಕ ಸೇವಾ ನಿಯಮಾವಳಿಗಳು (KCSRs) ನಿಯಮ 135-ಎ ಹಾಗೂ ಸರ್ಕಾರಿ ಆದೇಶ ಸಂ: ಆಇ 4 ಎಸ್ಆರ್ಎಸ್ 99 ದಿನಾಂಕ: 08-02-1999 ರನ್ವಯ ಕರ್ತವ್ಯದ ಮೇಲಿರುವಂತೆ ಪೂರ್ಣ ವೇತನ ಮತ್ತು ಭತ್ಯೆಗಳೊಂದಿಗೆ ಮಂಜೂರು ಮಾಡಲಾಗಿದೆ.`;
+    } else if (isLeave) {
+      preambleText = `ಭದ್ರಾವತಿ ಶೈಕ್ಷಣಿಕ ವಲಯದ ವ್ಯಾಪ್ತಿಯಲ್ಲಿರುವ ${employee.officeLocation} ಇಲ್ಲಿ ಕರ್ತವ್ಯ ನಿರ್ವಹಿಸುತ್ತಿರುವ ಶ್ರೀ/ಶ್ರೀಮತಿ ${employee.fullName}, ${employee.designation} ಇವರು ನಿಯಮಾನುಸಾರ ${orderTypeName} ಮಂಜೂರು ಮಾಡುವಂತೆ ಕೋರಿ ಪ್ರಸ್ತಾವನೆ ಸಲ್ಲಿಸಿರುತ್ತಾರೆ. ಸದರಿಯವರ ಸೇವಾ ಪುಸ್ತಕವನ್ನು ಕೂಲಂಕಷವಾಗಿ ಪರಿಶೀಲಿಸಲಾಗಿ, ರಜೆ ಶಿಲ್ಕು ಲಭ್ಯವಿರುವುದನ್ನು ದೃಢೀಕರಿಸಿ, ಕೆಳಕಂಡಂತೆ ಆದೇಶ ಹೊರಡಿಸಲಾಗಿದೆ.`;
+      orderBodyText = `ಶ್ರೀ/ಶ್ರೀಮತಿ ${employee.fullName}, ${employee.designation} ಇವರಿಗೆ ದಿನಾಂಕ: ${orderData.leaveDetails?.leaveFrom || today} ರಿಂದ ${orderData.leaveDetails?.leaveTo || today} ರವರೆಗೆ ಒಟ್ಟು ${orderData.leaveDetails?.totalDays || 1} ದಿನಗಳ ${orderTypeName}ಯನ್ನು ಕೆಸಿಎಸ್ಆರ್ ನಿಯಮಾವಳಿಗಳ ಅನ್ವಯ ಮಂಜೂರು ಮಾಡಲಾಗಿದೆ.`;
+    } else {
+      preambleText = `ಭದ್ರಾವತಿ ಶೈಕ್ಷಣಿಕ ವಲಯದ ವ್ಯಾಪ್ತಿಯಲ್ಲಿರುವ ${employee.officeLocation} ಇಲ್ಲಿ ಕರ್ತವ್ಯ ನಿರ್ವಹಿಸುತ್ತಿರುವ ಶ್ರೀ/ಶ್ರೀಮತಿ ${employee.fullName}, ${employee.designation} ಇವರು ನಿಯಮಾನುಸಾರ ${orderTypeName} ಮಂಜೂರು ಮಾಡುವಂತೆ ಕೋರಿ ಪ್ರಸ್ತಾವನೆ ಸಲ್ಲಿಸಿರುತ್ತಾರೆ. ಸದರಿಯವರ ಸೇವಾ ಪುಸ್ತಕವನ್ನು ಕೂಲಂಕಷವಾಗಿ ಪರಿಶೀಲಿಸಲಾಗಿ, ಅರ್ಹತಾ ಸೇವಾವಧಿಯು ತೃಪ್ತಿಕರವಾಗಿದ್ದು ಯಾವುದೇ ಇಲಾಖಾ ವಿಚಾರಣೆ ಬಾಕಿ ಇರುವುದಿಲ್ಲವೆಂದು ದೃಢೀಕರಿಸಿ, ಕೆಳಕಂಡಂತೆ ಆದೇಶ ಹೊರಡಿಸಲಾಗಿದೆ.`;
+      orderBodyText = `ಶ್ರೀ/ಶ್ರೀಮತಿ ${employee.fullName}, ${employee.designation} ಇವರ ಪ್ರಸ್ತುತ ಮೂಲ ವೇತನ ₹${oldBasic.toLocaleString('en-IN')}/- (ವೇತನ ಶ್ರೇಣಿ: ${employee.payScale}) ಗೆ ದಿನಾಂಕ: ${effectiveDate} ರಿಂದ ಜಾರಿಗೆ ಬರುವಂತೆ ₹${incrementAmt.toLocaleString('en-IN')}/- ವೇತನ ಬಡ್ತಿಯನ್ನು ಮಂಜೂರು ಮಾಡಿ, ಇವರ ನೂತನ ಮೂಲ ವೇತನವನ್ನು ₹${newBasic.toLocaleString('en-IN')}/- ಗೆ ಪರಿಷ್ಕರಿಸಿ ನಿಗದಿಪಡಿಸಲಾಗಿದೆ.`;
+    }
 
     const copiesList = [
       `ಸಂಬಂಧಪಟ್ಟ ನೌಕರರಿಗೆ: ಶ್ರೀ/ಶ್ರೀಮತಿ ${employee.fullName}, ${employee.designation}`,
@@ -2121,7 +2205,6 @@ class RelationalDatabase {
     ];
 
     // DDO Signatory Resolution:
-    // Dynamically pull DDO officer information from employee where isDdo === true
     const ddoEmp = this.data.employees.find(e => (e as any).isDdo === true);
     const resolvedSignatoryName = ddoEmp?.fullName || (orderData as any).signatoryName || office.ddoOfficerName || office.officerName || 'ಹೆಚ್. ರವಿಕುಮಾರ್';
     const resolvedSignatoryDesignation = ddoEmp?.designation || (orderData as any).signatoryDesignation || office.ddoDesignation || office.officerDesignation || 'ಕ್ಷೇತ್ರ ಶಿಕ್ಷಣಾಧಿಕಾರಿಗಳು & ಡಿಡಿಓ';
@@ -2149,7 +2232,7 @@ class RelationalDatabase {
       payScale: employee.payScale,
       effectiveDate,
       ruleReference: ruleRef,
-      subject: `ಶಾಲಾ ಶಿಕ್ಷಣ ಇಲಾಖೆ, ಭದ್ರಾವತಿ ವಲಯ - ${orderTypeName} ಮಂಜೂರಾತಿ ಜ್ಞಾಪನ.`,
+      subject: `ಶಾಲಾ ಶಿಕ್ಷಣ ಇಲಾಖೆ, ಭದ್ರಾವತಿ ವಲಯ - ${orderTypeName} ಮಂಜೂರಾತಿ ${isOfficeOrder ? 'ಕಛೇರಿ ಆದೇಶ' : 'ಜ್ಞಾಪನ'}.`,
       preamble: preambleText,
       orderText: orderBodyText,
       officialRemarks: orderData.officialRemarks || `${calc.reason}`,
@@ -2157,6 +2240,21 @@ class RelationalDatabase {
         ...orderData.leaveDetails,
         balanceBefore: calc.leaveCalculation?.currentBalance,
         balanceAfter: calc.leaveCalculation?.balanceAfter,
+      } : undefined,
+      officeOrderDetails: isGpfAdvance ? {
+        orderCategory: 'gpf_advance',
+        gpfAccountNo: gpfAcc,
+        gpfAdvanceAmount: gpfAdvAmt,
+        installmentCount: gpfInstCount,
+        installmentAmount: gpfInstAmt,
+        recoveryStartMonth: gpfStartMonth,
+        purpose: orderPurpose,
+      } : isGpfPartial ? {
+        orderCategory: 'gpf_partial',
+        gpfAccountNo: gpfAcc,
+        gpfCreditBalance: gpfCreditBal,
+        gpfWithdrawalAmount: gpfWithAmt,
+        purpose: orderPurpose,
       } : undefined,
       signatoryName: resolvedSignatoryName,
       signatoryDesignation: resolvedSignatoryDesignation,
@@ -2184,14 +2282,22 @@ class RelationalDatabase {
         </div>
 
         <div class="text-center mb-2">
-          <h2 class="text-xs font-extrabold uppercase tracking-wider text-stone-950 bg-stone-100 inline-block px-3 py-1 border border-stone-300 rounded">
-            ಅಧಿಕೃತ ಜ್ಞಾಪನ
+          <h2 class="text-xs font-extrabold uppercase tracking-wider text-stone-950 bg-stone-100 inline-block px-4 py-1 border border-stone-300 rounded">
+            ${isOfficeOrder ? ':: ಕಛೇರಿ ಆದೇಶ ::' : 'ಅಧಿಕೃತ ಜ್ಞಾಪನ'}
           </h2>
         </div>
 
         <div class="space-y-1 text-[11px] leading-snug text-stone-800 mb-2">
-          <p><strong>ವಿಷಯ:</strong> ಶಾಲಾ ಶಿಕ್ಷಣ ಇಲಾಖೆ, ಭದ್ರಾವತಿ ತಾಲ್ಲೂಕು - ${isPaternity ? `ಶ್ರೀ ${employee.fullName}, ${employee.designation} ಇವರಿಗೆ ಪಿತೃತ್ವ ರಜೆ (Paternity Leave) ಮಂಜೂರಾತಿ ಕುರಿತು.` : `${orderData.orderTypeName || orderTypeName} ಮಂಜೂರಾತಿ ಕುರಿತು.`}</p>
-          ${isPaternity ? `
+          <p><strong>ವಿಷಯ:</strong> ಶಾಲಾ ಶಿಕ್ಷಣ ಇಲಾಖೆ, ಭದ್ರಾವತಿ ತಾಲ್ಲೂಕು - ${isGpfAdvance ? `ಶ್ರೀ/ಶ್ರೀಮತಿ ${employee.fullName}, ${employee.designation} ಇವರಿಗೆ ತಾತ್ಕಾಲಿಕ GPF ಮುಂಗಡ ಮಂಜೂರಾತಿ ಕಛೇರಿ ಆದೇಶ.` : isGpfPartial ? `ಶ್ರೀ/ಶ್ರೀಮತಿ ${employee.fullName}, ${employee.designation} ಇವರಿಗೆ GPF ಭಾಗಶಃ ಅಂತಿಮ ಹಿಂಪಡೆಯುವಿಕೆ ಮಂಜೂರಾತಿ ಕಛೇರಿ ಆದೇಶ.` : isPaternity ? `ಶ್ರೀ ${employee.fullName}, ${employee.designation} ಇವರಿಗೆ ಪಿತೃತ್ವ ರಜೆ (Paternity Leave) ಮಂಜೂರಾತಿ ಕುರಿತು.` : `${orderData.orderTypeName || orderTypeName} ಮಂಜೂರಾತಿ ಕುರಿತು.`}</p>
+          ${isGpfAdvance ? `
+            <p><strong>ಉಲ್ಲೇಖ:</strong> 1. ಸಂಬಂಧಪಟ್ಟ ನೌಕರರ ಜಿ.ಪಿ.ಎಫ್ ಮುಂಗಡ ಅರ್ಜಿ ದಿನಾಂಕ: ${orderDate}.</p>
+            <p class="pl-11">2. ಕರ್ನಾಟಕ ಸಾಮಾನ್ಯ ಭವಿಷ್ಯ ನಿಧಿ ನಿಯಮಾವಳಿಗಳು 10 ಮತ್ತು 12 (KGPF Rules 10 & 12).</p>
+            <p class="pl-11">3. ಶಾಲಾ ಮುಖ್ಯಸ್ಥರ ಶಿಫಾರಸು ಪತ್ರ ಹಾಗೂ ಕಡತ ಪರಿಶೀಲನೆ.</p>
+          ` : isGpfPartial ? `
+            <p><strong>ಉಲ್ಲೇಖ:</strong> 1. ಸಂಬಂಧಪಟ್ಟ ನೌಕರರ ಜಿ.ಪಿ.ಎಫ್ ಭಾಗಶಃ ಅಂತಿಮ ಹಿಂಪಡೆಯುವಿಕೆ ಅರ್ಜಿ ದಿನಾಂಕ: ${orderDate}.</p>
+            <p class="pl-11">2. ಕರ್ನಾಟಕ ಸಾಮಾನ್ಯ ಭವಿಷ್ಯ ನಿಧಿ ನಿಯಮಾವಳಿ 13 (KGPF Rule 13 - Non-Refundable Withdrawal).</p>
+            <p class="pl-11">3. ಮಹಾಲೆಕ್ಕಪಾಲರ ಕಚೇರಿ (PAG) ಜಿ.ಪಿ.ಎಫ್ ಲೆಕ್ಕ ಪತ್ರ ಹಾಗೂ ಶಿಲ್ಕು ದೃಢೀಕರಣ.</p>
+          ` : isPaternity ? `
             <p><strong>ಉಲ್ಲೇಖ:</strong> 1. ಸಂಬಂಧಪಟ್ಟ ನೌಕರರ ಅರ್ಜಿ ದಿನಾಂಕ: ${appDateVal}.</p>
             <p class="pl-11">2. ಮುಖ್ಯೋಪಾಧ್ಯಾಯರು / ಕಚೇರಿ ಮುಖ್ಯಸ್ಥರ ಶಿಫಾರಸು ಪತ್ರ.</p>
             <p class="pl-11">3. ಮಗುವಿನ ಜನನ ಪ್ರಮಾಣಪತ್ರ / ಆಸ್ಪತ್ರೆ ದಾಖಲೆ: ${certDetails}.</p>
@@ -2209,7 +2315,73 @@ class RelationalDatabase {
           
           <p class="font-bold text-[11px] text-stone-950 pt-0.5">ಆದೇಶ:</p>
 
-          ${!isLeave ? `
+          ${isGpfAdvance ? `
+            <div class="overflow-x-auto my-1">
+              <table class="w-full border-collapse border border-stone-400 text-[10.5px] bg-white">
+                <thead>
+                  <tr class="bg-stone-100 text-stone-900 font-bold text-center">
+                    <th class="border border-stone-400 p-1.5 w-8">ಕ್ರ.ಸಂ.</th>
+                    <th class="border border-stone-400 p-1.5 text-left">ನೌಕರರ ಹೆಸರು & ಹುದ್ದೆ</th>
+                    <th class="border border-stone-400 p-1.5 text-left">ಶಾಲೆ / ಕಛೇರಿ</th>
+                    <th class="border border-stone-400 p-1.5 text-center">KGID & GPF ಖಾತೆ ಸಂಖ್ಯೆ</th>
+                    <th class="border border-stone-400 p-1.5 text-center">ಮೂಲ ವೇತನ</th>
+                    <th class="border border-stone-400 p-1.5 text-center bg-amber-50">ಮಂಜೂರಾದ GPF ಮುಂಗಡ</th>
+                    <th class="border border-stone-400 p-1.5 text-center">ಕಂತುಗಳ ಸಂಖ್ಯೆ</th>
+                    <th class="border border-stone-400 p-1.5 text-center bg-sky-50">ಮಾಸಿಕ ಕಂತು</th>
+                    <th class="border border-stone-400 p-1.5 text-left">ಮುಂಗಡದ ಉದ್ದೇಶ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="text-stone-800">
+                    <td class="border border-stone-400 p-1.5 text-center font-mono font-bold">1</td>
+                    <td class="border border-stone-400 p-1.5 text-left font-semibold">
+                      ${employee.fullName}<br/>
+                      <span class="text-[9.5px] font-normal text-stone-600">${employee.designation}</span>
+                    </td>
+                    <td class="border border-stone-400 p-1.5 text-left text-[10px]">${employee.officeLocation}</td>
+                    <td class="border border-stone-400 p-1.5 text-center font-mono text-[10px]">KGID: ${employee.kgidNumber}<br/>GPF: <strong>${gpfAcc}</strong></td>
+                    <td class="border border-stone-400 p-1.5 text-center font-mono">₹${oldBasic.toLocaleString('en-IN')}/-</td>
+                    <td class="border border-stone-400 p-1.5 text-center font-mono font-bold text-amber-950 bg-amber-50 text-xs">₹${gpfAdvAmt.toLocaleString('en-IN')}/-</td>
+                    <td class="border border-stone-400 p-1.5 text-center font-mono font-bold">${gpfInstCount} ಕಂತುಗಳು</td>
+                    <td class="border border-stone-400 p-1.5 text-center font-mono font-bold text-sky-950 bg-sky-50">₹${gpfInstAmt.toLocaleString('en-IN')}/-</td>
+                    <td class="border border-stone-400 p-1.5 text-left text-[9.5px]">${orderPurpose}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          ` : isGpfPartial ? `
+            <div class="overflow-x-auto my-1">
+              <table class="w-full border-collapse border border-stone-400 text-[10.5px] bg-white">
+                <thead>
+                  <tr class="bg-stone-100 text-stone-900 font-bold text-center">
+                    <th class="border border-stone-400 p-1.5 w-8">ಕ್ರ.ಸಂ.</th>
+                    <th class="border border-stone-400 p-1.5 text-left">ನೌಕರರ ಹೆಸರು & ಹುದ್ದೆ</th>
+                    <th class="border border-stone-400 p-1.5 text-left">ಶಾಲೆ / ಕಛೇರಿ</th>
+                    <th class="border border-stone-400 p-1.5 text-center">GPF ಖಾತೆ ಸಂಖ್ಯೆ</th>
+                    <th class="border border-stone-400 p-1.5 text-center">ಖಾತೆಯಲ್ಲಿನ ಒಟ್ಟು ಶಿಲ್ಕು</th>
+                    <th class="border border-stone-400 p-1.5 text-center bg-emerald-50">ಮಂಜೂರಾದ ಭಾಗಶಃ ಅಂತಿಮ ಮೊತ್ತ</th>
+                    <th class="border border-stone-400 p-1.5 text-center">ಹಿಂಪಡೆಯುವಿಕೆ ನಿಯಮ</th>
+                    <th class="border border-stone-400 p-1.5 text-left">ಹಿಂಪಡೆಯುವಿಕೆಯ ಉದ್ದೇಶ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="text-stone-800">
+                    <td class="border border-stone-400 p-1.5 text-center font-mono font-bold">1</td>
+                    <td class="border border-stone-400 p-1.5 text-left font-semibold">
+                      ${employee.fullName}<br/>
+                      <span class="text-[9.5px] font-normal text-stone-600">${employee.designation}</span>
+                    </td>
+                    <td class="border border-stone-400 p-1.5 text-left text-[10px]">${employee.officeLocation}</td>
+                    <td class="border border-stone-400 p-1.5 text-center font-mono font-bold">${gpfAcc}</td>
+                    <td class="border border-stone-400 p-1.5 text-center font-mono">₹${gpfCreditBal.toLocaleString('en-IN')}/-</td>
+                    <td class="border border-stone-400 p-1.5 text-center font-mono font-bold text-emerald-950 bg-emerald-50 text-xs">₹${gpfWithAmt.toLocaleString('en-IN')}/-</td>
+                    <td class="border border-stone-400 p-1.5 text-center text-[10px] text-stone-700 font-semibold">KGPF Rule 13 (ಮರುಪಾವತಿ ರಹಿತ)</td>
+                    <td class="border border-stone-400 p-1.5 text-left text-[9.5px]">${orderPurpose}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          ` : !isLeave ? `
             <div class="overflow-x-auto my-1">
               <table class="w-full border-collapse border border-stone-400 text-[10.5px] bg-white">
                 <thead>
@@ -2281,18 +2453,22 @@ class RelationalDatabase {
           ${orderData.officialRemarks ? `<p class="text-stone-700 italic text-[10px]">ಷರಾ: ${orderData.officialRemarks}</p>` : ''}
 
           <p class="text-[10px] text-stone-700 mt-1">
-            ಈ ಜ್ಞಾಪನದ ಪ್ರತಿಯನ್ನು ನೌಕರರ ಮೂಲ ಸೇವಾ ಪುಸ್ತಕದಲ್ಲಿ (Service Book) ದಾಖಲಿಸಲು ಹಾಗೂ ಎಚ್‌ಆರ್‌ಎಂಎಸ್ (HRMS) ತಂತ್ರಾಂಶದಲ್ಲಿ ನವೀಕರಿಸಿ ವೇತನ ಸೆಳೆಯಲು ಸೂಚಿಸಲಾಗಿದೆ.
+            ಈ ಕಛೇರಿ ಆದೇಶದ ಪ್ರತಿಯನ್ನು ನೌಕರರ ಮೂಲ ಸೇವಾ ಪುಸ್ತಕದಲ್ಲಿ (Service Book) ದಾಖಲಿಸಲು ಹಾಗೂ ಎಚ್‌ಆರ್‌ಎಂಎಸ್ (HRMS) ತಂತ್ರಾಂಶದಲ್ಲಿ ನವೀಕರಿಸಿ ವೇತನ ಸೆಳೆಯಲು ಸೂಚಿಸಲಾಗಿದೆ.
           </p>
         </div>
 
-        <div class="mt-6 flex justify-end">
-          <div class="text-center min-w-52 space-y-1">
+        <!-- Strict BEO Bhadravathi Taluk Signature Block - Case Worker only in internal record -->
+        <div class="mt-6 flex justify-between items-end">
+          <div class="text-[10px] text-stone-600">
+            <p>ಸ್ಥಳ: ಭದ್ರಾವತಿ</p>
+            <p>ದಿನಾಂಕ: ${orderDate}</p>
+            <p class="text-[9px] text-stone-500 mt-0.5">ಕಡತ ನಿರ್ವಹಣೆ: ವಿಷಯ ನಿರ್ವಾಹಕರು (ಆಂತರಿಕ ದಾಖಲೆ)</p>
+          </div>
+          <div class="text-center min-w-52 space-y-0.5">
             <p class="text-xs text-stone-700 font-medium">ತಮ್ಮ ನಂಬುಗೆಯ,</p>
-            <div style="height: 48px;"></div>
-            ${(orderData as any).showCaseworkerSignature && user?.displayName ? `
-              <p class="font-bold text-xs text-stone-950">(${user.displayName})</p>
-              <p class="text-[11px] text-stone-700">ವಿಷಯ ನಿರ್ವಾಹಕರು (Caseworker)</p>
-            ` : ''}
+            <div style="height: 38px;"></div>
+            <p class="font-bold text-xs text-stone-950">ಕ್ಷೇತ್ರ ಶಿಕ್ಷಣಾಧಿಕಾರಿಗಳು</p>
+            <p class="text-[11px] text-stone-700">ಭದ್ರಾವತಿ ತಾಲ್ಲೂಕು</p>
           </div>
         </div>
 
