@@ -233,7 +233,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
   });
 
   const onTimeFilesCount = Math.max(0, pendingFilesCount - overdueFiles.length - dueSoonFiles.length);
-  const slaComplianceRate = totalFilesCount > 0 ? Math.round(((totalFilesCount - overdueFiles.length) / totalFilesCount) * 100) : 100;
+  const slaComplianceRate = pendingFilesCount > 0 ? Math.round(((pendingFilesCount - overdueFiles.length) / pendingFilesCount) * 100) : null;
 
   // 4. Employee Statistics
   const totalEmployeesCount = employees.length;
@@ -363,6 +363,34 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
         </div>
       </div>
 
+      {/* Caseworker action centre: counts are derived only from current docket records. */}
+      <section aria-label="ತುರ್ತು ಕೆಲಸಗಳು" className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <div>
+            <h2 className="text-lg font-bold text-slate-900 font-kannada">ಇಂದಿನ ಕೆಲಸಗಳು · Caseworker Workspace</h2>
+            <p className="text-xs text-slate-600 font-kannada">ಆಯ್ದ ವಿಭಾಗದ ನಿಜವಾದ ಕಡತಗಳ ಆಧಾರದ ಮೇಲೆ — ಅನುಮೋದನೆ ಹಂತವಿಲ್ಲ</p>
+          </div>
+          <button type="button" onClick={() => onNavigate('reports')} className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700">ವರದಿಗಳು ತೆರೆಯಿರಿ</button>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <button type="button" onClick={() => onNavigate('files', { status: 'overdue' })} className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-left hover:border-rose-400">
+            <span className="block text-sm font-semibold text-rose-900">ಗಡುವು ಮೀರಿದ ಕಡತಗಳು</span>
+            <span className="block mt-2 text-3xl font-bold tabular-nums text-rose-800">{overdueFiles.length}</span>
+            <span className="block text-xs text-rose-700">ಕಡತಗಳನ್ನು ಪರಿಶೀಲಿಸಿ</span>
+          </button>
+          <button type="button" onClick={() => onNavigate('files')} className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-left hover:border-amber-400">
+            <span className="block text-sm font-semibold text-amber-900">48 ಗಂಟೆಯೊಳಗೆ ಗಡುವು</span>
+            <span className="block mt-2 text-3xl font-bold tabular-nums text-amber-800">{dueSoonFiles.length}</span>
+            <span className="block text-xs text-amber-700">ಬಾಕಿ ಕಡತಗಳನ್ನು ತೆರೆಯಿರಿ</span>
+          </button>
+          <button type="button" onClick={() => onNavigate('generalLetter')} className="rounded-xl border border-sky-200 bg-sky-50 p-4 text-left hover:border-sky-400">
+            <span className="block text-sm font-semibold text-sky-900">ಪತ್ರ ತಯಾರಿ</span>
+            <span className="block mt-2 text-xl font-bold text-sky-800">ಹೊಸ ಪತ್ರ +</span>
+            <span className="block text-xs text-sky-700">ಕಡತದಲ್ಲಿ ಪತ್ರ ರಚಿಸಿ</span>
+          </button>
+        </div>
+      </section>
+
       {/* 3. REAL DATABASE STATISTICS GRID – Clean Enterprise Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Card 1: Total Files */}
@@ -459,7 +487,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
           </div>
           <div className="mt-2 text-xs text-slate-600 flex items-center justify-between border-t border-slate-100 pt-2 font-kannada">
             <span>48 ಗಂಟೆಯೊಳಗೆ: <strong className="text-amber-600 font-mono font-bold">{dueSoonFiles.length}</strong></span>
-            <span>ಸಮಯಕ್ಕೆ ಸರಿಯಾಗಿ: <strong className="text-emerald-700 font-mono font-bold">{slaComplianceRate}%</strong></span>
+            <span>ಸಮಯಕ್ಕೆ ಸರಿಯಾಗಿ: <strong className="text-emerald-700 font-mono font-bold">{slaComplianceRate === null ? '—' : `${slaComplianceRate}%`}</strong></span>
           </div>
         </div>
       </div>
