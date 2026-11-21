@@ -22,9 +22,9 @@ jobs:
         shell: pwsh
     steps:
       - name: Checkout source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install Node.js 22
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '22'
       - name: Record Windows and Node diagnostics
@@ -75,14 +75,14 @@ jobs:
           if ($installers.Count -eq 0) { throw 'No Windows .exe installer produced' }
           $installers | Select-Object Name,Length | Format-Table
       - name: Upload Windows installer
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: BEO-Bhadravathi-Windows-Setup
           path: release/*.exe
           if-no-files-found: error
       - name: Publish build diagnostics
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: Windows-build-diagnostics
           path: |
