@@ -53,8 +53,17 @@ jobs:
         run: |
           if (!(Test-Path 'dist/server.cjs')) { throw 'Missing dist/server.cjs' }
           if (!(Test-Path 'dist/index.html')) { throw 'Missing dist/index.html' }
+      - name: Build SQLite native dependency for Node before Electron rebuild
+        run: |
+          npm rebuild better-sqlite3 --build-from-source --foreground-scripts
+          if ($LASTEXITCODE -ne 0) { throw 'Node SQLite source rebuild failed' }
+          $native = @(Get-ChildItem 'node_modules/better-sqlite3' -Filter 'better_sqlite3.node' -Recurse -File -ErrorAction SilentlyContinue)
+          if ($native.Count -eq 0) { throw 'Node SQLite source rebuild produced no native binary' }
+          $native | Select-Object FullName,Length | Format-Table
       - name: Rebuild native SQLite for Electron
-        run: npx electron-builder install-app-deps
+        run: |
+          npx electron-builder install-app-deps
+          if ($LASTEXITCODE -ne 0) { throw 'Electron native dependency rebuild failed' }
       - name: Verify rebuilt SQLite binary before packaging
         run: |
           $sqliteRoot = 'node_modules/better-sqlite3'
